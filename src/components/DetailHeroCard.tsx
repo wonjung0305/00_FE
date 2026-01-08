@@ -19,13 +19,8 @@ type DetailHeroCardProps = {
 
   statusPill?: string;
 
-  /** ✅ 제어형 상태 */
   bookmarked: boolean;
-
-  /** ✅ 클릭 시 다음 상태를 넘김 */
   onToggleBookmark?: (next: boolean) => Promise<void> | void;
-
-  /** ✅ 로딩 시 버튼 잠금 */
   bookmarkLoading?: boolean;
 
   onClickGo?: () => void;
@@ -46,6 +41,30 @@ function hasValue(v: React.ReactNode) {
   return s.length > 0 && s !== "undefined" && s !== "null";
 }
 
+/* =========================
+
+//
+// 날짜 유틸 (ListCard와 동일)
+//
+========================= */
+function parseDate(dateStr: string) {
+  const normalized = dateStr.trim().replace(/\./g, "-");
+  return new Date(normalized + "T00:00:00");
+}
+
+function calcDday(endDate: string) {
+  const end = parseDate(endDate);
+  const today = new Date();
+
+  if (isNaN(end.getTime())) return null;
+
+  end.setHours(0, 0, 0, 0);
+  today.setHours(0, 0, 0, 0);
+
+  const diffMs = end.getTime() - today.getTime();
+  return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+}
+
 export default function DetailHeroCard({
   badge,
   title,
@@ -60,7 +79,6 @@ export default function DetailHeroCard({
 }: DetailHeroCardProps) {
   const value = Math.max(0, Math.min(100, percent));
 
-  // 내부 pending(연타 방지)
   const [pending, setPending] = useState(false);
   const disabled = bookmarkLoading || pending;
 
@@ -69,6 +87,26 @@ export default function DetailHeroCard({
     meta.forEach((it) => m.set(it.label, it));
     return m;
   }, [meta]);
+
+  /* =========================
+   * ✅ 동의기간 기반 D-Day 뱃지 계산
+   * UX / 스타일 그대로, 텍스트만 변경
+   ========================= */
+  const computedStatusPill = useMemo(() => {
+    const period = metaMap.get("동의기간")?.value;
+    if (!hasValue(period)) return statusPill;
+
+    // "YYYY.MM.DD ~ YYYY.MM.DD"
+    const raw = String(period);
+    const parts = raw.split("~").map((s) => s.trim());
+    if (parts.length < 2) return statusPill;
+
+    const endDate = parts[1];
+    const dday = calcDday(endDate);
+
+    if (dday === null) return statusPill;
+    return dday >= 0 ? `D-${dday}` : "마감";
+  }, [metaMap, statusPill]);
 
   const orderedMeta = useMemo(() => {
     const order = [
@@ -79,32 +117,6 @@ export default function DetailHeroCard({
       "위원회회부일",
       "처리결과",
     ];
-
-    function formatNumber(n: number) {
-      return n.toLocaleString("ko-KR");
-    }
-    
-    // 날짜 파싱 보조=> "YYYY.MM.DD", "YYYY-MM-DD" 형태를 일정하게 수정하는 것
-    function parseDate(dateStr: string) {
-      const normalized = dateStr.trim().replace(/\./g, "-"); // . -> -
-      const d = new Date(normalized + "T00:00:00");
-      return d;
-    }
-    
-    // D-Day 계산
-    function calcDday(endDate: string) {
-      const end = parseDate(endDate);
-      const today = new Date();
-    
-      if (isNaN(end.getTime())) return null;
-    
-      end.setHours(0, 0, 0, 0);
-      today.setHours(0, 0, 0, 0);
-    
-      const diffMs = end.getTime() - today.getTime();
-      return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-    }
-    
 
     return order.map((label) => {
       const found = metaMap.get(label);
@@ -142,26 +154,6 @@ export default function DetailHeroCard({
         };
       }
 
-      if (label === "처리결과") {
-        const v = found?.value;
-        return {
-          iconSrc: found?.iconSrc ?? DEFAULT_ICON[label],
-          label,
-          value: hasValue(v) ? v : "-",
-          valueHighlight: found?.valueHighlight ?? true,
-        };
-      }
-
-      if (label === "위원회회부일" || label === "소관위원회") {
-        const v = found?.value;
-        return {
-          iconSrc: found?.iconSrc ?? DEFAULT_ICON[label],
-          label,
-          value: hasValue(v) ? v : "-",
-          valueHighlight: found?.valueHighlight ?? false,
-        };
-      }
-
       const v = found?.value;
       return {
         iconSrc: found?.iconSrc ?? DEFAULT_ICON[label],
@@ -188,7 +180,11 @@ export default function DetailHeroCard({
     <section className={styles.card}>
       <div className={styles.inner}>
         <div className={styles.topRow}>
-          {statusPill ? <span className={styles.statusPill}>{statusPill}</span> : <span />}
+          {computedStatusPill ? (
+            <span className={styles.statusPill}>{computedStatusPill}</span>
+          ) : (
+            <span />
+          )}
 
           <button
             type="button"
@@ -236,14 +232,19 @@ export default function DetailHeroCard({
             <div className={styles.statsRow}>
               <div className={styles.people}>
                 <img src="/numberofpeople.svg" alt="" className={styles.peopleIcon} />
-                <span className={styles.peopleText}>{agreeCount.toLocaleString()}명</span>
+                <span className={styles.peopleText}>
+                  {agreeCount.toLocaleString()}명
+                </span>
               </div>
 
               <span className={styles.percent}>{value}%</span>
             </div>
 
             <div className={styles.progressTrack}>
-              <div className={styles.progressFill} style={{ width: `${value}%` }} />
+              <div
+                className={styles.progressFill}
+                style={{ width: `${value}%` }}
+              />
             </div>
           </div>
 

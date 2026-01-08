@@ -51,7 +51,7 @@ const QUESTIONS: Question[] = [
         text: "공정성과 형평성을 지키는 정책인가?",
         type: "D",
       },
-      { text: "청년에게 실질적인 도움이 되는 정책인가?.", type: "C" },
+      { text: "청년에게 실질적인 도움이 되는 정책인가?", type: "C" },
     ],
   },
   {

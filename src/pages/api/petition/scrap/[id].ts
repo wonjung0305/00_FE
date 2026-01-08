@@ -1,7 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import axios from "axios";
 
-const BASE = process.env.NEXT_PUBLIC_API_URL
+// 혹시 모를 / eoql
+const BASE = (process.env.NEXT_PUBLIC_API_URL ?? "").replace(/\/$/, "");
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   res.setHeader("X-Api-Hit", "pages-api-petition-scrap-id");

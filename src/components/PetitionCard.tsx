@@ -4,6 +4,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import styles from "@/styles/PetitionCard.module.css";
+import { useAuthStore } from "@/store/authStore";
+import { useScrapStore } from "@/store/scrapStore";
 
 // 서버와 주고받을 데이터 타입
 export type PetitionCardItem = {
@@ -24,7 +26,7 @@ const CATEGORY_STYLES: Record<string, { bg: string; text: string }> = {
   "수사, 법무, 사법제도": { bg: "#e7f0ff", text: "#6990CF" },
   "재정, 세제, 금융, 예산": { bg: "#e7f0ff", text: "#6990CF" },
   "소비자, 공정거래": { bg: "#fff4e6", text: "#daa25b" },
-  "교육": { bg: "#efe7ff", text: "#9071cd" },
+  교육: { bg: "#efe7ff", text: "#9071cd" },
   "과학기술, 정보통신": { bg: "#efe7ff", text: "#9071cd" },
   "외교, 통일, 국방, 안보": { bg: "#efe7ff", text: "#9071cd" },
   "재난, 안전, 환경": { bg: "#fff9e8", text: "#cda430" },
@@ -32,12 +34,12 @@ const CATEGORY_STYLES: Record<string, { bg: string; text: string }> = {
   "문화, 체육, 관광, 언론": { bg: "#fff9e8", text: "#cda430" },
   "농업, 임업, 수산업, 축산업": { bg: "#fff4e6", text: "#daa25b" },
   "산업, 통상": { bg: "#f0fff0", text: "#79B495" },
-  "보건의료": { bg: "#ffe8ee", text: "#c77288" },
+  보건의료: { bg: "#ffe8ee", text: "#c77288" },
   "복지, 보훈": { bg: "#ffe8ee", text: "#c77288" },
   "국토, 해양, 교통": { bg: "#f0fff0", text: "#79B495" },
   "인권, 성평등, 노동": { bg: "#ffe8ee", text: "#c77288" },
   "저출산, 고령화, 아동, 청소년, 가족": { bg: "#ffe8ee", text: "#c77288" },
-  "기타": { bg: "#f1f1f1", text: "#767676" },
+  기타: { bg: "#f1f1f1", text: "#767676" },
 };
 
 // 숫자 포맷
@@ -62,12 +64,15 @@ type PetitionCardProps = {
   item: PetitionCardItem;
   href?: string;
   forceCategoryGray?: boolean;
+
+  onLoginRequired?: () => void;
 };
 
 export default function PetitionCard({
   item,
   href,
   forceCategoryGray,
+  onLoginRequired,
 }: PetitionCardProps) {
   // 카테고리 정규화
   const categoryKey = (item.category ?? "").trim().replace(/\//g, ", ");
@@ -87,6 +92,20 @@ export default function PetitionCard({
   // 상세 페이지 경로 (단수 petition!)
   const detailHref = href ?? `/petition/${item.id}`;
 
+  const isAuthed = useAuthStore((s) => s.isAuthenticated);
+  const isLoading = useScrapStore((s) => s.isLoading);
+
+  const petId = Number(item.id);
+  const scrapped = useScrapStore((s) =>
+    Number.isFinite(petId) ? s.scraps.some((x) => x.petId === petId) : false
+  );
+
+  const loading = useScrapStore((s) =>
+    Number.isFinite(petId) ? !!s.loadingById[petId] : false
+  );
+
+  const toggleScrap = useScrapStore((s) => s.toggleScrap);
+
   return (
     <article className={styles.cardWrapper}>
       {/* 상단 흰 카드 영역 (클릭 이동 x) */}
@@ -100,8 +119,26 @@ export default function PetitionCard({
             className={styles.bookmarkBtn}
             type="button"
             aria-label="북마크"
+            onClick={async (e) => {
+              e.stopPropagation();
+              if (!Number.isFinite(petId)) return;
+
+              if (!isAuthed) {
+                onLoginRequired?.();
+                return;
+              }
+
+              if (isLoading(petId)) return;
+
+              await toggleScrap(petId);
+            }}
           >
-            <Image src="/bookMark.svg" alt="" width={24} height={24} />
+            <Image
+              src={scrapped ? "/bookMark_colored.svg" : "/bookMark.svg"}
+              alt=""
+              width={24}
+              height={24}
+            />
           </button>
         </div>
 

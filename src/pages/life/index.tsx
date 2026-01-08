@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import styles from "@/styles/Congress.module.css";
+import { useLoginToast } from "@/hooks/useLoginToast";
+import LoginToast from "@/components/LoginToast";
 
 import ListCard, { CongressCardItem } from "@/components/ListCard";
 
@@ -64,6 +66,8 @@ export default function LifePage() {
     setSortOption(option);
     setIsSortOpen(false);
   };
+
+  const { toast, toastHide, showLoginToast } = useLoginToast();
 
   // 바깥 클릭하면 정렬 드롭다운 닫기
   useEffect(() => {
@@ -136,6 +140,7 @@ export default function LifePage() {
   // 렌더링 하는 부분
   return (
     <>
+      <LoginToast open={toast} hide={toastHide} />
       <main className={styles.container}>
         {/* 제목 영역 */}
         <section className={styles.titleSection}>
@@ -256,7 +261,12 @@ export default function LifePage() {
           {!loading && items.length === 0 && <p>등록된 청원이 없습니다.</p>}
           {!loading &&
             items.map((item) => (
-              <ListCard key={item.id} item={item} forceCategoryGray />
+              <ListCard
+                key={item.id}
+                item={item}
+                forceCategoryGray
+                onLoginRequired={showLoginToast}
+              />
             ))}
         </div>
 

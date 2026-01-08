@@ -15,7 +15,11 @@ import CommentsSection from "@/components/CommentsSection";
 
 import styles from "@/styles/PetitionDetail.module.css";
 import { useAuthStore } from "@/store/authStore";
-import { useScrap } from "@/hooks/useScrap";
+
+import { useLoginToast } from "@/hooks/useLoginToast";
+import LoginToast from "@/components/LoginToast";
+
+import { useScrapStore } from "@/store/scrapStore";
 
 type PetitionDetailResponse = {
   title?: string;
@@ -93,26 +97,21 @@ function normalizeLaws(data: any): LawItem[] {
 export default function PetitionDetailPage() {
   const router = useRouter();
 
+  const { toast, toastHide, showLoginToast } = useLoginToast();
+
   const petitionId = useMemo(() => {
     const v = router.query.id;
     const n = typeof v === "string" ? Number(v) : NaN;
     return Number.isFinite(n) ? n : null;
   }, [router.query.id]);
 
-  const token = useAuthStore((s) => s.token);
-  const isAuthed = !!token;
+  const isAuthed = useAuthStore((s) => s.isAuthenticated);
 
-  const {
-    isScrapped,
-    loading: scrapLoading,
-    setScrap,
-  } = useScrap({
-    petitionId: petitionId ?? 0,
-    onRequireLogin: () => {
-      alert("로그인이 필요합니다.");
-      // router.push("/login");
-    },
-  });
+  // toast
+  const toggleScrap = useScrapStore((s) => s.toggleScrap);
+  const syncScraps = useScrapStore((s) => s.sync);
+  const isLoading = useScrapStore((s) => s.isLoading);
+  const syncing = useScrapStore((s) => s.syncing);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -124,6 +123,19 @@ export default function PetitionDetailPage() {
   const [goodLocal, setGoodLocal] = useState(0);
   const [badLocal, setBadLocal] = useState(0);
 
+  const isScrapped = useScrapStore((s) =>
+    petitionId ? s.scraps.some((x) => x.petId === petitionId) : false
+  );
+
+  const thisLoading = useScrapStore((s) =>
+    petitionId ? !!s.loadingById[petitionId] : false
+  );
+
+  useEffect(() => {
+    if (!petitionId) return;
+    syncScraps();
+  }, [petitionId, isAuthed, syncScraps]);
+
   useEffect(() => {
     if (!petitionId) return;
 
@@ -134,7 +146,9 @@ export default function PetitionDetailPage() {
     setLawsError(null);
 
     Promise.all([
-      axios.get(`/api/petition/${petitionId}`).then((r) => r.data as PetitionDetailResponse),
+      axios
+        .get(`/api/petition/${petitionId}`)
+        .then((r) => r.data as PetitionDetailResponse),
       axios.get(`/api/petition/laws/${petitionId}`).then((r) => r.data),
     ])
       .then(([detailData, lawsData]) => {
@@ -160,21 +174,57 @@ export default function PetitionDetailPage() {
     };
   }, [petitionId]);
 
-  const badge = useMemo(() => safeString(detail?.category, "-"), [detail?.category]);
-  const title = useMemo(() => safeString(detail?.title, "제목 없음"), [detail?.title]);
+  const badge = useMemo(
+    () => safeString(detail?.category, "-"),
+    [detail?.category]
+  );
+  const title = useMemo(
+    () => safeString(detail?.title, "제목 없음"),
+    [detail?.title]
+  );
 
-  const agreeCount = useMemo(() => safeNumber(detail?.allows, 0), [detail?.allows]);
-  const percent = useMemo(() => computePercent(detail?.allows), [detail?.allows]);
+  const agreeCount = useMemo(
+    () => safeNumber(detail?.allows, 0),
+    [detail?.allows]
+  );
+  const percent = useMemo(
+    () => computePercent(detail?.allows),
+    [detail?.allows]
+  );
 
   const heroMeta = useMemo(() => {
-    const period = `${formatDotDate(detail?.voteStartDate)} ~ ${formatDotDate(detail?.voteEndDate)}`;
+    const period = `${formatDotDate(detail?.voteStartDate)} ~ ${formatDotDate(
+      detail?.voteEndDate
+    )}`;
     return [
-      { iconSrc: "/proicons_calendar.svg", label: "동의기간", value: period, valueHighlight: true },
-      { iconSrc: "/Group (2).svg", label: "소관위원회", value: safeString(detail?.department, "-") },
-      { iconSrc: "/Group (1).svg", label: "상태", value: statusLabel(detail?.status) },
+      {
+        iconSrc: "/proicons_calendar.svg",
+        label: "동의기간",
+        value: period,
+        valueHighlight: true,
+      },
+      {
+        iconSrc: "/Group (2).svg",
+        label: "소관위원회",
+        value: safeString(detail?.department, "-"),
+      },
+      {
+        iconSrc: "/Group (1).svg",
+        label: "상태",
+        value: statusLabel(detail?.status),
+      },
       { iconSrc: "/proicons_attach.svg", label: "청원분야", value: badge },
-      { iconSrc: "/proicons_send.svg", label: "위원회회부일", value: detail?.voteStartDate ? formatDotDate(detail.finalDate) : "-" },
-      { iconSrc: "/proicons_script.svg", label: "처리결과", value: safeString(detail?.result, "-"), valueHighlight: true },
+      {
+        iconSrc: "/proicons_send.svg",
+        label: "위원회회부일",
+        value: detail?.voteStartDate ? formatDotDate(detail.finalDate) : "-",
+      },
+      {
+        iconSrc: "/proicons_script.svg",
+        label: "처리결과",
+        value: safeString(detail?.result, "-"),
+        valueHighlight: true,
+      },
     ];
   }, [
     detail?.voteStartDate,
@@ -188,8 +238,18 @@ export default function PetitionDetailPage() {
 
   const miniMeta = useMemo(() => {
     return [
-      { iconSrc: "/proicons_calendar.svg", label: "마감날짜", value: formatDotDate(detail?.voteEndDate), valueHighlight: true },
-      { iconSrc: "/proicons_script.svg", label: "처리결과", value: safeString(detail?.result, "-"), valueHighlight: true },
+      {
+        iconSrc: "/proicons_calendar.svg",
+        label: "마감날짜",
+        value: formatDotDate(detail?.voteEndDate),
+        valueHighlight: true,
+      },
+      {
+        iconSrc: "/proicons_script.svg",
+        label: "처리결과",
+        value: safeString(detail?.result, "-"),
+        valueHighlight: true,
+      },
     ];
   }, [detail?.voteEndDate, detail?.result]);
 
@@ -236,6 +296,7 @@ export default function PetitionDetailPage() {
     return (
       <main className={styles.page}>
         <Header />
+        <LoginToast open={toast} hide={toastHide} />
         <div className={styles.container}>잘못된 id</div>
       </main>
     );
@@ -245,6 +306,7 @@ export default function PetitionDetailPage() {
     return (
       <main className={styles.page}>
         <Header />
+        <LoginToast open={toast} hide={toastHide} />
         <div className={styles.container}>로딩중...</div>
       </main>
     );
@@ -254,6 +316,7 @@ export default function PetitionDetailPage() {
     return (
       <main className={styles.page}>
         <Header />
+        <LoginToast open={toast} hide={toastHide} />
         <div className={styles.container}>{error ?? "데이터 없음"}</div>
       </main>
     );
@@ -262,6 +325,7 @@ export default function PetitionDetailPage() {
   return (
     <main className={styles.page}>
       <Header />
+      <LoginToast open={toast} hide={toastHide} />
       <div className={styles.bgLayer} />
 
       <div className={styles.contentWrap}>
@@ -274,13 +338,16 @@ export default function PetitionDetailPage() {
             percent={percent}
             statusPill="마감"
             bookmarked={isScrapped}
-            bookmarkLoading={scrapLoading || isScrapped}
+            bookmarkLoading={thisLoading || syncing}
             onToggleBookmark={async () => {
-              if (isScrapped) {
-                alert("북마크 해제는 마이페이지에서 할 수 있어요.");
+              if (!petitionId) return;
+              if (!isAuthed) {
+                showLoginToast();
                 return;
               }
-              await setScrap(true);
+              if (thisLoading) return;
+
+              await toggleScrap(petitionId);
             }}
             onClickGo={onClickGo}
           />
@@ -293,7 +360,9 @@ export default function PetitionDetailPage() {
 
               <RelatedPolicyCard policies={laws} error={lawsError} />
 
-              {showProsCons && <ProsConsSection pros={prosItems} cons={consItems} />}
+              {showProsCons && (
+                <ProsConsSection pros={prosItems} cons={consItems} />
+              )}
 
               <SummaryNotice />
 

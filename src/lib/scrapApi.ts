@@ -1,7 +1,4 @@
-
-
-import axios from "axios";
-import { useAuthStore } from "@/store/authStore";
+import localApi from "@/lib/axios";
 
 export type ScrapItem = {
   petId: number;
@@ -12,50 +9,35 @@ export type ScrapItem = {
   voteEndDate: string;
 };
 
-function authHeader() {
-  const token = useAuthStore.getState().token;
-  return token ? { Authorization: `Bearer ${token}` } : {};
-}
-
+/* 내 스크랩 조회*/
 export async function getMyScraps(): Promise<ScrapItem[]> {
-  const r = await axios.get("/api/user/scrap", {
-    headers: authHeader(),
-    validateStatus: () => true,
-  });
+  const r = await localApi.get("/api/user/scrap", { validateStatus: () => true });
 
-  if (r.status === 200) return r.data ?? [];
+  if (r.status === 401 || r.status === 402) return [];
+  if (r.status < 200 || r.status >= 300) throw r;
 
-  const err: any = new Error("getMyScraps failed");
-  err.status = r.status;
-  err.data = r.data;
-  throw err;
+  return Array.isArray(r.data) ? r.data : [];
 }
 
-export async function postScrap(petitionId: number) {
-  const r = await axios.post(`/api/petition/scrap/${petitionId}`, null, {
-    headers: authHeader(),
+/* 스크랩 삭제 */
+export async function deleteScraps(ids: number[]): Promise<void> {
+  const r = await localApi.delete("/api/user/scrap", {
+    data: ids, // 배열 자체만 보내기
+    headers: {
+      "Content-Type": "application/json",
+    },
     validateStatus: () => true,
   });
 
-  if (r.status === 200) return r.data;
-
-  const err: any = new Error("postScrap failed");
-  err.status = r.status;
-  err.data = r.data;
-  throw err;
+  if (r.status === 401 || r.status === 402) throw { status: r.status };
+  if (r.status < 200 || r.status >= 300) throw r;
 }
-
-export async function deleteScraps(ids: number[]) {
-  const r = await axios.delete("/api/user/scrap", {
-    headers: authHeader(),
-    data: { id: ids }, // 명세: { id: [petitionId...] }
+/* 스크랩 추가: */
+export async function postScrap(petId: number): Promise<void> {
+  const r = await localApi.post(`/api/petition/scrap/${petId}`, null, {
     validateStatus: () => true,
   });
 
-  if (r.status === 200) return r.data;
-
-  const err: any = new Error("deleteScraps failed");
-  err.status = r.status;
-  err.data = r.data;
-  throw err;
+  if (r.status === 401 || r.status === 402) throw { status: r.status };
+  if (r.status < 200 || r.status >= 300) throw r;
 }

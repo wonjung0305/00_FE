@@ -12,9 +12,22 @@ import PetitionCard, { PetitionCardItem } from "@/components/PetitionCard";
 
 import { getPetitions, PetitionResponse } from "@/lib/api/mainCard";
 
+import { useLoginToast } from "@/hooks/useLoginToast";
+import LoginToast from "@/components/LoginToast";
+import { useScrapStore } from "@/store/scrapStore";
+
 export default function Home() {
   const [assemblyList, setAssemblyList] = useState<PetitionCardItem[]>([]);
   const [dailyList, setDailyList] = useState<PetitionCardItem[]>([]);
+
+  const { toast, toastHide, showLoginToast } = useLoginToast();
+
+  const isAuthed = useAuthStore((s) => s.isAuthenticated);
+  const syncScraps = useScrapStore((s) => s.sync);
+
+  useEffect(() => {
+    syncScraps();
+  }, [isAuthed, syncScraps]);
 
   // 토큰 저장용
   const router = useRouter();
@@ -42,11 +55,13 @@ export default function Home() {
       ]);
 
       const formattedAssembly = formatData(assemblyData).sort(
-        (a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime()
+        (a, b) =>
+          new Date(b.startDate).getTime() - new Date(a.startDate).getTime()
       );
 
       const formattedDaily = formatData(dailyData).sort(
-        (a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime()
+        (a, b) =>
+          new Date(b.startDate).getTime() - new Date(a.startDate).getTime()
       );
 
       setAssemblyList(formattedAssembly);
@@ -89,6 +104,7 @@ export default function Home() {
   return (
     <>
       <Header />
+      <LoginToast open={toast} hide={toastHide} />
 
       <div className={styles.page}>
         <Banner />
@@ -122,7 +138,11 @@ export default function Home() {
             <div className={styles.cardGrid}>
               {assemblyList.length === 0 && <p>등록된 청원이 없습니다.</p>}
               {assemblyList.map((item) => (
-                <PetitionCard key={item.id} item={item} />
+                <PetitionCard
+                  key={item.id}
+                  item={item}
+                  onLoginRequired={showLoginToast}
+                />
               ))}
             </div>
           </section>
@@ -155,7 +175,12 @@ export default function Home() {
             <div className={styles.cardGrid}>
               {dailyList.length === 0 && <p>등록된 청원이 없습니다.</p>}
               {dailyList.map((item) => (
-                <PetitionCard key={item.id} item={item} forceCategoryGray />
+                <PetitionCard
+                  key={item.id}
+                  item={item}
+                  forceCategoryGray
+                  onLoginRequired={showLoginToast}
+                />
               ))}
             </div>
           </section>

@@ -29,7 +29,8 @@ function diffDays(toIso?: string) {
 
   const ymd = toIso.slice(0, 10);
   const [y, m, d] = ymd.split("-").map((v) => Number(v));
-  if (!Number.isFinite(y) || !Number.isFinite(m) || !Number.isFinite(d)) return null;
+  if (!Number.isFinite(y) || !Number.isFinite(m) || !Number.isFinite(d))
+    return null;
 
   const target = new Date(y, m - 1, d);
   const now = new Date();
@@ -85,7 +86,10 @@ const MyPage: NextPage = () => {
     return rows.slice(start, start + PAGE_SIZE);
   }, [rows, currentPage]);
 
-  const currentPageIds = useMemo(() => currentPageRows.map((r) => r.id), [currentPageRows]);
+  const currentPageIds = useMemo(
+    () => currentPageRows.map((r) => r.id),
+    [currentPageRows]
+  );
 
   const isAllSelectedOnPage = useMemo(() => {
     if (currentPageIds.length === 0) return false;
@@ -95,16 +99,22 @@ const MyPage: NextPage = () => {
   const fetchRows = useCallback(async () => {
     try {
       const list = await getMyScraps();
-      const nextRows = list.map(toRow);
+
+      const uniq = Array.from(new Map(list.map((x) => [x.petId, x])).values());
+
+      const nextRows = uniq.map(toRow);
 
       setRows(nextRows);
       setSelectedIds([]);
 
-      const nextTotalPages = Math.max(1, Math.ceil(nextRows.length / PAGE_SIZE));
+      const nextTotalPages = Math.max(
+        1,
+        Math.ceil(nextRows.length / PAGE_SIZE)
+      );
       setCurrentPage((p) => Math.min(p, nextTotalPages));
     } catch (e: any) {
-      if (e?.status === 401) {
-        logout();
+      const status = e?.status ?? e?.response?.status;
+      if (status === 401 || status === 402) {
         router?.replace?.("/login");
         return;
       }
@@ -128,7 +138,9 @@ const MyPage: NextPage = () => {
     if (selectedIds.length === 0) return;
     if (deleting) return;
 
-    const ids = selectedIds.map((s) => Number(s)).filter((n) => Number.isFinite(n));
+    const ids = selectedIds
+      .map((s) => Number(s))
+      .filter((n) => Number.isFinite(n));
     if (ids.length === 0) return;
 
     setDeleting(true);
@@ -136,8 +148,8 @@ const MyPage: NextPage = () => {
       await deleteScraps(ids);
       await fetchRows();
     } catch (e: any) {
-      if (e?.status === 401) {
-        logout();
+      const status = e?.status ?? e?.response?.status;
+      if (status === 401 || status === 402) {
         router?.replace?.("/login");
         return;
       }
@@ -148,7 +160,9 @@ const MyPage: NextPage = () => {
   }, [selectedIds, deleting, fetchRows, logout, router]);
 
   const toggleRow = (id: string) => {
-    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
   };
 
   return (
@@ -164,7 +178,9 @@ const MyPage: NextPage = () => {
               type="button"
               className={styles.actionBtn}
               onClick={selectAllOnPage}
-              disabled={currentPageIds.length === 0 || isAllSelectedOnPage || deleting}
+              disabled={
+                currentPageIds.length === 0 || isAllSelectedOnPage || deleting
+              }
             >
               전체 선택
             </button>

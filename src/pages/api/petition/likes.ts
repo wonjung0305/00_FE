@@ -1,27 +1,35 @@
-// 청원에 대한 좋아요, 싫어요 액션을 처리하는 API 핸들러
-
 import type { NextApiRequest, NextApiResponse } from "next";
 import axios from "axios";
 
+const BASE = (process.env.NEXT_PUBLIC_API_URL ?? "").replace(/\/$/, "");
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const base = process.env.SERVER_BASE_URL;
-  if (!base) return res.status(500).send("SERVER_BASE_URL is not set");
-  
-  // POST 메서드만 허용
-  if (req.method !== "POST") {
-    res.setHeader("Allow", "POST");
-    return res.status(405).end();
-  }
+  res.setHeader("X-Api-Hit", "pages-api-petition-likes");
+
+  const auth = req.headers.authorization || "";
+
+  const axiosOpt = {
+    maxRedirects: 0,
+    validateStatus: () => true,
+    headers: {
+      Authorization: auth,
+      "Content-Type": "application/json",
+    },
+  } as const;
 
   try {
-    // 백엔드에 좋아요/싫어요 요청 전달(1: 좋아요, -1: 싫어요), 쿠키 포함
-    const r = await axios.post(`${base}/petition/likes`, req.body, {
-      headers: { cookie: req.headers.cookie ?? "" },
-      validateStatus: () => true,
-    });
-  
-    // 성공 시 다시 /api/petition/{id} 호출해서 숫자갱신
-    return res.status(r.status).json(r.data);
+    if (req.method === "POST") {
+      const r = await axios.post(`${BASE}/petition/likes`, req.body, axiosOpt);
+
+      if (r.status === 301 || r.status === 302) {
+        return res.status(401).json({ message: "로그인이 필요합니다." });
+      }
+
+      return res.status(r.status).json(r.data ?? null);
+    }
+
+    res.setHeader("Allow", "POST");
+    return res.status(405).end();
   } catch (e: any) {
     return res.status(500).json({ message: e?.message ?? "proxy error" });
   }

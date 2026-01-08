@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import styles from "@/styles/CommentsSection.module.css";
 import localApi from "@/lib/axios"; // 로컬 API 전용 axios
+
+import { useLoginToast } from "@/hooks/useLoginToast";
+
+import styles from "@/styles/CommentsSection.module.css";
+import LoginToast from "@/components/LoginToast";
 
 type CommentItem = {
   id: number;
@@ -45,26 +49,9 @@ export default function CommentsSection({ petitionId, isAuthed }: Props) {
 
   const [openMenuId, setOpenMenuId] = useState<number | null>(null);
 
-  // toast 용
-  const [toast, setToast] = useState(false);
-  const [toastHide, setToastHide] = useState(false);
-
   const count = useMemo(() => items.length, [items.length]);
 
-  const showLoginToast = () => {
-    // 연타 대비 => 다시 처음부터 보이게
-    setToast(true);
-    setToastHide(false);
-
-    // 3초 뒤부터 페이드아웃 시작
-    setTimeout(() => setToastHide(true), 3000);
-
-    // 페이드아웃 애니메이션 끝난 뒤 DOM에서 제거
-    setTimeout(() => {
-      setToast(false);
-      setToastHide(false);
-    }, 3400);
-  };
+  const { toast, toastHide, showLoginToast } = useLoginToast();
 
   // 댓글 목록 불러오기
   const fetchComments = async () => {
@@ -91,11 +78,12 @@ export default function CommentsSection({ petitionId, isAuthed }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [petitionId]);
 
-  // ✅ 댓글 작성
+  // 댓글 작성
   const onSubmit = async () => {
     const body = draft.trim();
     if (!body) return;
 
+    // 비로그인 -> toast
     if (!isAuthed) {
       showLoginToast();
       return;
@@ -113,6 +101,7 @@ export default function CommentsSection({ petitionId, isAuthed }: Props) {
         { validateStatus: () => true }
       );
 
+      // 서버가 로그인 필요라고 주면 toast + 원복
       if (r.status === 401 || r.status === 402) {
         showLoginToast();
         setDraft(body);
@@ -130,8 +119,9 @@ export default function CommentsSection({ petitionId, isAuthed }: Props) {
     }
   };
 
-  // ✅ 댓글 삭제
+  // 댓글 삭제
   const onDelete = async (commentId: number) => {
+    //비로그인 -> toast
     if (!isAuthed) {
       showLoginToast();
       return;
@@ -152,12 +142,13 @@ export default function CommentsSection({ petitionId, isAuthed }: Props) {
         return;
       }
 
+      // 실패면 롤백
       if (r.status < 200 || r.status >= 300) {
         setItems(prev);
         return;
       }
 
-      // ✅ 서버 상태와 다시 동기화
+      // 서버 상태와 다시 동기화
       await fetchComments();
     } catch {
       setItems(prev);
@@ -165,83 +156,91 @@ export default function CommentsSection({ petitionId, isAuthed }: Props) {
   };
 
   return (
-    <section className={styles.wrap} onClick={() => setOpenMenuId(null)}>
-      {toast && (
-        <div className={`${styles.toast} ${toastHide ? styles.toastHide : ""}`}>
-          <img
-            src="/error_white.svg"
-            alt="error"
-            className={styles.toastIcon}
-          />
-          <span>로그인 후 이용할 수 있는 기능이에요!</span>
-        </div>
-      )}
+    <>
+      <LoginToast open={toast} hide={toastHide} />
 
-      <h2 className={styles.title}>댓글 {count}개</h2>
+      <section className={styles.wrap} onClick={() => setOpenMenuId(null)}>
+        <h2 className={styles.title}>댓글 {count}개</h2>
 
-      <div className={styles.inputRow}>
-        <div className={styles.avatar} />
-        <div className={styles.inputCol}>
-          <input
-            className={styles.input}
-            placeholder={loading ? "불러오는 중..." : "댓글을 입력하세요"}
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") onSubmit();
-            }}
-            disabled={posting}
-          />
-          <div className={styles.underline} />
-        </div>
-      </div>
-
-      <div className={styles.list}>
-        {items.map((c) => (
-          <div key={c.id} className={styles.item}>
-            <div className={styles.avatar} />
-
-            <div className={styles.content}>
-              <div className={styles.name}>{c.name}</div>
-              <p className={styles.body}>{c.body}</p>
-            </div>
-
-            <div
-              className={styles.menuWrap}
-              onClick={(e) => e.stopPropagation()}
-            >
-              {c.check ? (
-                <>
-                  <button
-                    type="button"
-                    className={styles.kebab}
-                    onClick={() =>
-                      setOpenMenuId((p) => (p === c.id ? null : c.id))
-                    }
-                    aria-label="댓글 메뉴"
-                  >
-                    ⋮
-                  </button>
-
-                  {openMenuId === c.id && (
-                    <div className={styles.menu}>
-                      <button
-                        type="button"
-                        className={styles.menuItem}
-                        onClick={() => onDelete(c.id)}
-                      >
-                        삭제
-                      </button>
-                    </div>
-                  )}
-                </>
-              ) : (
-                <div className={styles.kebabPlaceholder} />
-              )}
-            </div>
+        <div className={styles.inputRow}>
+          <div className={styles.avatar} />
+          <div className={styles.inputCol}>
+            <input
+              className={styles.input}
+              placeholder={
+                loading
+                  ? "불러오는 중..."
+                  : !isAuthed
+                  ? "로그인 후 댓글을 작성할 수 있어요"
+                  : "댓글을 입력하세요"
+              }
+              value={draft}
+              onFocus={() => {
+                if (!isAuthed) showLoginToast();
+              }}
+              onChange={(e) => setDraft(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") onSubmit();
+              }}
+              disabled={posting || !isAuthed}
+              onMouseDown={(e) => {
+                if (!isAuthed) {
+                  e.preventDefault(); // 포커스/커서 안 들어가게
+                  showLoginToast();
+                }
+              }}
+            />
+            <div className={styles.underline} />
           </div>
-        ))}
-      </div>
-    </section>
+        </div>
+
+        <div className={styles.list}>
+          {items.map((c) => (
+            <div key={c.id} className={styles.item}>
+              <div className={styles.avatar} />
+
+              <div className={styles.content}>
+                <div className={styles.name}>{c.name}</div>
+                <p className={styles.body}>{c.body}</p>
+              </div>
+
+              <div
+                className={styles.menuWrap}
+                onClick={(e) => e.stopPropagation()}
+              >
+                {c.check ? (
+                  <>
+                    <button
+                      type="button"
+                      className={styles.kebab}
+                      onClick={() =>
+                        setOpenMenuId((p) => (p === c.id ? null : c.id))
+                      }
+                      aria-label="댓글 메뉴"
+                    >
+                      ⋮
+                    </button>
+
+                    {openMenuId === c.id && (
+                      <div className={styles.menu}>
+                        <button
+                          type="button"
+                          className={styles.menuItem}
+                          onClick={() => onDelete(c.id)}
+                        >
+                          삭제
+                        </button>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div className={styles.kebabPlaceholder} />
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    </>
   );
 }

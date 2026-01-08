@@ -3,6 +3,11 @@ import Image from "next/image";
 import Link from "next/link";
 import styles from "@/styles/Congress.module.css";
 
+import { useLoginToast } from "@/hooks/useLoginToast";
+import LoginToast from "@/components/LoginToast";
+import { useScrapStore } from "@/store/scrapStore";
+import { useAuthStore } from "@/store/authStore";
+
 import ListCard, { CongressCardItem } from "@/components/ListCard";
 
 import Pagination from "@/components/Pagination";
@@ -29,7 +34,7 @@ const CATEGORIES = [
   "교육",
   "인권/성평등/노동",
   "", // 빈칸 맞추기용
-  "국토/해양/교통", 
+  "국토/해양/교통",
   "과학기술/정보통신",
   "저출산/고령화/아동/청소년/가족",
   "",
@@ -92,6 +97,11 @@ export default function CongressPage() {
 
   // 실제 서버 검색에 쓰일 확정 키워드
   const [searchKeyword, setSearchKeyword] = useState("");
+
+  /* 토스트 - 로그인 했는지 */
+  const { toast, toastHide, showLoginToast } = useLoginToast();
+  const isAuthed = useAuthStore((s) => s.isAuthenticated);
+  const syncScraps = useScrapStore((s) => s.sync);
 
   // 바깥 클릭하면 드롭다운 닫기
   useEffect(() => {
@@ -231,13 +241,16 @@ export default function CongressPage() {
     setCurrentPage(1);
   }, [activeStatus, sortOption, selectedCategories, searchKeyword]);
 
-  // Mock 임시
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const pagedItems = items.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  //로그인 상태면 스크랩 목록을 한 번 동기화
+  useEffect(() => {
+    syncScraps();
+  }, [isAuthed, syncScraps]);
 
   // 렌더링 하는 부분
   return (
     <>
+      <LoginToast open={toast} hide={toastHide} />
+
       <main className={styles.container}>
         {/* 제목 영역 */}
         <section className={styles.titleSection}>
@@ -442,7 +455,13 @@ export default function CongressPage() {
           {!loading && items.length === 0 && <p>등록된 청원이 없습니다.</p>}
 
           {!loading &&
-            items.map((item) => <ListCard key={item.id} item={item} />)}
+            items.map((item) => (
+              <ListCard
+                key={item.id}
+                item={item}
+                onLoginRequired={showLoginToast}
+              />
+            ))}
         </div>
 
         <Pagination

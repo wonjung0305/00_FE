@@ -26,9 +26,14 @@ export default function LikeDislikeBar({ petitionId, good, bad, onChangeCounts }
     let alive = true;
 
     api
-      .get(`/petition/likes/${petitionId}`)
+      .get(`/api/petition/likes/${petitionId}`, { validateStatus: () => true })
       .then((r) => {
         if (!alive) return;
+
+        if (r.status === 401) {
+          setMy(null);
+          return;
+        }
 
         const d = r.data;
         const v = Number(d?.likes ?? d);
@@ -69,14 +74,32 @@ export default function LikeDislikeBar({ petitionId, good, bad, onChangeCounts }
     setMy(nextMy);
 
     try {
-      await api.post(`/petition/likes`, {
-        id: petitionId,
-        likes,
-      });
+      const r = await api.post(
+        `/api/petition/likes`,
+        { id: petitionId, likes },
+        { validateStatus: () => true }
+      );
+
+      if (r.status === 401) {
+        applyLocalCounts(my);
+        setMy(my);
+
+        if (confirm("로그인이 필요한 서비스입니다.\n로그인 하시겠습니까?")) {
+          window.location.href = "/login";
+        }
+        return;
+      }
+
+      if (r.status >= 400) {
+        applyLocalCounts(my);
+        setMy(my);
+        alert("요청 처리에 실패했습니다.");
+        return;
+      }
     } catch (error: any) {
       applyLocalCounts(my);
       setMy(my);
-      
+
       if (error.response?.status === 401) {
         if (confirm("로그인이 필요한 서비스입니다.\n로그인 하시겠습니까?")) {
           window.location.href = "/login";
