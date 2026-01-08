@@ -46,7 +46,7 @@ export default function LoginPage() {
   const base = process.env.NEXT_PUBLIC_SERVER_BASE_URL;
   alert(`BASE=${base}`);
 
-  const origin = window.location.origin;
+  const origin = "https://moragora.site";
   const url = `${base}/oauth2/authorization/google?origin=${encodeURIComponent(origin)}`;
   alert(`LOGIN URL=${url}`);
 
