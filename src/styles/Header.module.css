@@ -59,15 +59,15 @@
   overflow: hidden;
 
   /* 로고 카테고리 글자 사이 간격 -> 유동적으로*/
-  margin-left: clamp(16px, 6vw, 136px); 
-  
+  margin-left: clamp(16px, 6vw, 136px);
+
   margin-right: auto;
 }
 
 /* --- 내비게이션 내용 ---*/
 .navItem {
   position: relative;
-  display: block; 
+  display: block;
   overflow: hidden;
 
   font-size: 14px;
@@ -165,4 +165,24 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
+}
+
+.userArea {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* 닉네임 - 프로필 이미지 사이 간격 */
+  
+}
+
+/* 닉네임 스타일은 취향대로 */
+.nickname {
+  color: #6a3df6;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1;
+
+  white-space: nowrap;
+  font-family: "Noto Sans KR", sans-serif;
+
+  margin-top: 0px; /* 양수 픽셀로 지정하면 내려감*/
 }

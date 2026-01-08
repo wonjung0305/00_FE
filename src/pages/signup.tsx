@@ -25,7 +25,7 @@ export default function SignupPage() {
     }
 
     setEmail("");
-    setSubmitError("이메일 정보가 없습니다. 다시 로그인 해주세요.");
+    //setSubmitError("이메일 정보가 없습니다. 다시 로그인 해주세요.");
   }, [router.query.email]);
 
   const trimmed = useMemo(() => name.trim(), [name]);
@@ -61,7 +61,6 @@ export default function SignupPage() {
         }
       );
 
-      // 프록시가 status 그대로 내려주므로 여기서 판단 가능
       if (r.status === 302) setIsDuplicate(true);
       else if (r.status === 200) setIsDuplicate(false);
       else setIsDuplicate(false);

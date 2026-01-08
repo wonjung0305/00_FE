@@ -53,8 +53,8 @@
 
 /* 북마크 아이콘 */
 .bookmarkIcon {
-  width: 22px;
-  height: 22px;
+  width: 32px;
+  height: 32px;
 }
 
 /* =========================
@@ -190,7 +190,7 @@
 .progressFill {
   height: 100%;
   border-radius: 999px;
-  background: #c9f23a; /* 형광 연두 */
+  background: #c9f23a; 
 }
 
 /* 바로가기 버튼 */
@@ -209,4 +209,12 @@
 /* 버튼 hover 효과 */
 .cta:hover {
   background: #5f37dd;
+}
+
+.preTitle {
+  margin-top: 8px;
+  margin-bottom: 6px;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--Color-Gray-05, #767676);
 }

@@ -168,7 +168,7 @@ export default function ProfileCard() {
                 onClick={onLogout}
               >
                 <Image src="/logout.svg" alt="" width={16} height={16} />
-                <span>로그아웃</span>
+                <span className={styles.menuTextUp}>로그아웃</span>
               </button>
 
               <div className={styles.divider} />

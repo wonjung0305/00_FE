@@ -1,9 +1,10 @@
-html, body {
-  background: #F5F5F5 !important;
+html,
+body {
+  background: #f5f5f5 !important;
 }
 
 /* --------- 배너 --------- */
-.banner{
+.banner {
   height: 544px;
   background: #e6e6e6;
   position: relative;
@@ -15,14 +16,14 @@ html, body {
   max-width: 1440px;
   margin: 0 auto;
 
-  padding:0 clamp(16px, 5vw, 120px) 68px; /* 아래 여백 68px */
+  padding: 0 clamp(16px, 5vw, 120px) 68px; /* 아래 여백 68px */
 
   box-sizing: border-box;
 
   /* 버튼 위치 제어 */
   display: flex;
-  align-items: center;        /* 세로 중앙 기준 */
-  justify-content: center;    /* 가로 중앙 */
+  align-items: center; /* 세로 중앙 기준 */
+  justify-content: center; /* 가로 중앙 */
 
   position: relative;
 }
@@ -35,7 +36,7 @@ html, body {
   margin: 0 auto;
   padding: 60px clamp(24px, 6vw, 120px) 100px;
   /* 반응형으로 최소 24px, 충분히 크면 최대 120px까지 늘어남*/
-  
+
   box-sizing: border-box;
 }
 
@@ -88,7 +89,6 @@ html, body {
   height: 16px;
 
   margin-top: 1px; /* 위치 미세 조정 */
-  
 }
 
 /*기본 상태: 검은색 화살표는 숨김 */
@@ -103,27 +103,20 @@ html, body {
   display: block;
 }
 
-
 /* --------- 카드 그리드  --------- */
 .cardGrid {
   display: grid;
-  
+
   /* 화면 4등분 */
-  grid-template-columns: repeat(4, 1fr); 
-  
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+
   /* 카드 사이의 간격 */
-  gap: 16px; 
+  gap: 16px;
 }
 
-/* 반응형: 4->2->1 */
-@media (max-width: 1024px) {
+/* 아주 작은 경우*/
+@media (max-width: 360px) {
   .cardGrid {
-    grid-template-columns: repeat(2, 1fr); /* 2열로 */
-    gap: 24px; 
-  }
-}
-@media (max-width: 768px) {
-  .cardGrid {
-    grid-template-columns: 1fr; /* 1열로 */
+    grid-template-columns: 1fr;
   }
 }

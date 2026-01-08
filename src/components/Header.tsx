@@ -26,6 +26,8 @@ export default function Header() {
   const user = useAuthStore((s) => s.user);
   const loading = useAuthStore((s) => s.loading);
 
+  const nickname = user?.name?.trim() || "";
+
   return (
     <header className={styles.header}>
       <div className={styles.inner}>
@@ -46,6 +48,7 @@ export default function Header() {
         {/* 가운데: 네비게이션 */}
         <nav className={styles.nav} aria-label="내비게이션바">
           <Link
+            // 1페이지로 이동
             href="/congress"
             className={`${styles.navItem} ${
               pathname === "/congress" ? styles.active : ""
@@ -67,22 +70,27 @@ export default function Header() {
               pathname === "/more" ? styles.active : ""
             }`}
           >
-            몰아보기
+            모라보기
           </Link>
         </nav>
 
         {/* 오른쪽 */}
         <div className={styles.rights}>
           {loading ? null : user ? (
-            /* 기존 로그아웃 버튼 자리 → 마이페이지 아이콘 */
-            <Link href="/mypage" className={styles.profileBtn}>
-              <Image
-                src={getProfileSrc(user?.status)}
-                alt="마이페이지"
-                width={40}
-                height={40}
-              />
-            </Link>
+            <div className={styles.userArea}>
+              <span className={styles.nickname}>
+                {nickname ? `${nickname}님` : "사용자님"}
+              </span>
+
+              <Link href="/mypage" className={styles.profileBtn}>
+                <Image
+                  src={getProfileSrc(user?.status)}
+                  alt="마이페이지"
+                  width={40}
+                  height={40}
+                />
+              </Link>
+            </div>
           ) : (
             <Link href="/login" className={styles.loginBtn}>
               로그인

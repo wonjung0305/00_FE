@@ -67,29 +67,31 @@ export default function LikeDislikeBar({ petitionId, good, bad, onChangeCounts }
   const post = async (likes: 1 | -1) => {
     if (loading) return;
     setLoading(true);
-
+  
     const nextMy = my === likes ? null : likes;
-
+  
     applyLocalCounts(nextMy);
     setMy(nextMy);
-
+  
     try {
+      const sendLikes = nextMy === null ? 0 : nextMy;
+  
       const r = await api.post(
         `/api/petition/likes`,
-        { id: petitionId, likes },
+        { id: petitionId, likes: sendLikes },
         { validateStatus: () => true }
       );
-
+  
       if (r.status === 401) {
         applyLocalCounts(my);
         setMy(my);
-
+  
         if (confirm("로그인이 필요한 서비스입니다.\n로그인 하시겠습니까?")) {
           window.location.href = "/login";
         }
         return;
       }
-
+  
       if (r.status >= 400) {
         applyLocalCounts(my);
         setMy(my);
@@ -99,7 +101,7 @@ export default function LikeDislikeBar({ petitionId, good, bad, onChangeCounts }
     } catch (error: any) {
       applyLocalCounts(my);
       setMy(my);
-
+  
       if (error.response?.status === 401) {
         if (confirm("로그인이 필요한 서비스입니다.\n로그인 하시겠습니까?")) {
           window.location.href = "/login";
@@ -111,7 +113,7 @@ export default function LikeDislikeBar({ petitionId, good, bad, onChangeCounts }
       setLoading(false);
     }
   };
-
+  
   return (
     <div className={styles.wrap}>
       <div className={styles.bar}>

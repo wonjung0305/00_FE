@@ -2,9 +2,23 @@
 import axios from "./axios";
 import type { PetitionResponse, PetitionQuery } from "./mainCard";
 
+type CongressParams = {
+  how: number;
+  status: number;
+  limit: number;
+  page: number;
+  type?: number; 
+  category?: string;
+  keyWord?: string; 
+};
+
 // 국회안건 (국민 동의 청원)만 가져오는 함수
-export const getCongressPetitions = async (params: Omit<PetitionQuery, "type">) => {
+export const getCongressPetitions = async (
+  params: Omit<PetitionQuery, "type">
+) => {
   try {
+    console.log("[getCongressPetitions received params]", params);
+
     const response = await axios.get<any>("/petition/cardNews", {
       params: { ...params, type: 1 }, // type = 1, 국회 안건
     });

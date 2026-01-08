@@ -1,8 +1,6 @@
 body {
-  background-color: #F5F5F5;
-
+  background-color: #f5f5f5;
 }
-
 
 /* 페이지 전체 컨테이너*/
 .container {
@@ -17,9 +15,7 @@ body {
   padding-bottom: 100px;
 
   box-sizing: border-box;
-
 }
-
 
 /* ---------- 제목 영역 ---------- */
 .titleSection {
@@ -30,11 +26,11 @@ body {
   margin: 0;
 
   /* Gmarket Sans 폰트 적용 (글로벌에 정의된 이름 사용) */
-  font-family: 'GmarketSans', sans-serif; 
+  font-family: "GmarketSans", sans-serif;
   font-size: 64px;
-  font-weight: 700; 
-  color: #6A3DF6;
-  
+  font-weight: 700;
+  color: #6a3df6;
+
   line-height: 1.2;
 }
 
@@ -43,7 +39,7 @@ body {
   width: 100%;
   display: flex;
   align-items: center;
-  justify-content: space-between; 
+  justify-content: space-between;
   margin-bottom: 32px; /* 카드 리스트와의 간격 */
 
   flex-wrap: wrap; /* 좁아지면 다음 줄로 내려가게*/
@@ -74,12 +70,12 @@ body {
   display: flex;
 
   height: 36px;
-  
+
   align-items: center;
   justify-content: center;
 
   border: none;
-  border-radius: 100px; 
+  border-radius: 100px;
 
   cursor: pointer;
 }
@@ -91,7 +87,6 @@ body {
   font-weight: 500;
 
   padding: 12px 14px;
-
 }
 /* 선택 안됐을 때*/
 .statusBtnInactive {
@@ -101,34 +96,32 @@ body {
   font-weight: 500;
 
   padding: 0 14px;
-
 }
 
 /* 드롭다운 버튼 */
 .dropdownBtn {
   height: 36px;
-  
+
   position: relative;
   box-sizing: border-box;
-  
+
   border: 1.5px solid #bfbfbf;
   border-radius: 100px;
 
   background-color: #fff;
-  
+
   display: flex;
   align-items: center;
   justify-content: center;
-  
-  
+
   padding: 0 12px 0 14px;
   gap: 8px;
-  
+
   text-align: center;
   font-size: 16px;
   color: #767676;
   font-weight: 500;
-  
+
   cursor: pointer;
 }
 
@@ -144,21 +137,21 @@ body {
   top: calc(100% + 8px); /* 버튼에서 8px 아래 */
   left: 50%;
   transform: translateX(-50%); /* 가운데 정렬 */
-  
-  width: 100px; 
+
+  width: 100px;
   z-index: 9999; /* 다른 요소보다 위에 뜨게 */
-  
+
   background-color: #fff;
 
   border: 1px solid #bfbfbf;
   border-radius: 8px;
   box-shadow: 0px 0px 10px rgba(17, 17, 17, 0.15);
   box-sizing: border-box;
-  
+
   display: flex;
   flex-direction: column;
   align-items: center;
-  
+
   padding: 12px 0;
   gap: 12px;
 }
@@ -172,7 +165,7 @@ body {
 
   cursor: pointer;
 
-  white-space: nowrap; 
+  white-space: nowrap;
 
   text-align: center;
 }
@@ -194,10 +187,10 @@ body {
   /* 이미지 크기 강제 고정 */
   width: 20px !important;
   height: 20px !important;
-  
+
   /* Flex 아이템 크기 수축 방지 */
-  flex-shrink: 0; 
-  
+  flex-shrink: 0;
+
   /* 혹시 모를 여백 제거 */
   margin: 0;
   display: block;
@@ -209,23 +202,23 @@ body {
 /* 카테고리 드롭다운 박스*/
 .categoryDropdown {
   position: absolute;
-  top: calc(100% + 8px); 
+  top: calc(100% + 8px);
   left: 0; /* 카테고리 버튼 기준으로 왼쪽 정렬*/
-  
+
   /* 너비가 넓으므로 콘텐츠에 맞춤 */
-  width: max-content; 
-  min-width: 844px; 
+  width: max-content;
+  min-width: 844px;
   z-index: 9999;
-  
+
   background-color: #fff;
   border: 1px solid #bfbfbf;
   border-radius: 8px;
 
   box-shadow: 0px 0px 10px rgba(17, 17, 17, 0.15);
   box-sizing: border-box;
-  
+
   padding: 32px;
-  
+
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -234,11 +227,11 @@ body {
 
 .categoryGrid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr); 
-  
+  grid-template-columns: repeat(4, 1fr);
+
   column-gap: 24px; /* 가로 간격 */
-  row-gap: 16px;    /* 세로 간격 */
-  
+  row-gap: 16px; /* 세로 간격 */
+
   width: 100%;
 }
 
@@ -246,7 +239,7 @@ body {
 .categoryItem {
   display: flex;
   align-items: center;
-  
+
   font-size: 14px;
   color: #1e1e1e;
 
@@ -271,7 +264,7 @@ body {
 }
 
 /* 검색 바 */
-.searchWrapper{
+.searchWrapper {
   width: 300px;
   min-width: 300px; /* 줄어들었을 때 안망가지게*/
 }
@@ -280,7 +273,7 @@ body {
 .categoryFooter {
   width: 100%;
   display: flex;
-  justify-content: flex-end; 
+  justify-content: flex-end;
   gap: 20px;
 }
 
@@ -289,22 +282,22 @@ body {
   width: 84px;
   height: 36px;
   padding: 4px 14px;
-  
+
   background-color: #fff;
   border: 1px solid #e5e5e5;
   border-radius: 8px;
 
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.03);
   box-sizing: border-box;
-  
+
   display: flex;
   align-items: center;
   justify-content: center;
-  
-  font-size: 14px; 
+
+  font-size: 14px;
   font-weight: 400;
   color: #505050;
-  
+
   cursor: pointer;
 }
 
@@ -330,15 +323,14 @@ body {
   color: #505050;
 
   cursor: pointer;
-  
 }
 
-.resetIcon{
+.resetIcon {
   transform: translateY(1px);
 }
 
 /* 검색 창*/
-.searchBar{
+.searchBar {
   width: 100%;
   height: 36px;
 
@@ -362,16 +354,16 @@ body {
 
 /* 입력 필드 */
 .searchInput {
-  border: none;       
-  outline: none;     
-  background: transparent; 
-  
+  border: none;
+  outline: none;
+  background: transparent;
+
   width: 100%;
   height: 100%;
-  
+
   font-size: 14px;
-  color: #111; 
-  
+  color: #111;
+
   text-align: left;
 }
 
@@ -392,7 +384,32 @@ body {
   flex-shrink: 0;
 }
 
-.main{
-  background-color: #F5F5F5;
+.main {
+  background-color: #f5f5f5;
 }
 
+/* 긱본 */
+.cardGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 기본 4열 */
+  gap: 24px;
+  margin-top: 40px;
+}
+
+/* 3열 */
+@media (max-width: 1200px) {
+  .cardGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* 2열 */
+@media (max-width: 900px) {
+  .cardGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .container {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+}

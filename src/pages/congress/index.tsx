@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/router";
+import type { KeyboardEvent } from "react";
 import styles from "@/styles/Congress.module.css";
 
 import { useLoginToast } from "@/hooks/useLoginToast";
@@ -194,22 +196,27 @@ export default function CongressPage() {
 
   // 서버 호출 함수
   const fetchCongress = async () => {
+
     setLoading(true);
+
     try {
       const how = sortOption === "인기순" ? 0 : 1;
-      const statusForServer = activeStatus === "ongoing" ? 0 : 2;
+      const statusForServer = activeStatus === "ongoing" ? 0 : 1;
 
-      const categoriesForServer =
-        selectedCategories.length === 0 ? undefined : selectedCategories;
+      const categoryForServer =
+        selectedCategories.length === 0 ? undefined : selectedCategories[0];
+
+      const keyword = searchKeyword.trim();
 
       const data = await getCongressPetitions({
         how,
-        status: statusForServer,
+        // status: statusForServer,
         limit: ITEMS_PER_PAGE,
         page: currentPage,
-        category: categoriesForServer,
+        category: categoryForServer,
         keyWord: keyword ? keyword : undefined,
       });
+
 
       // 서버 데이터 변환
       const mapped = data.map(mapToCardItem);
@@ -243,6 +250,7 @@ export default function CongressPage() {
 
   //로그인 상태면 스크랩 목록을 한 번 동기화
   useEffect(() => {
+    if (!isAuthed) return;
     syncScraps();
   }, [isAuthed, syncScraps]);
 
@@ -430,10 +438,20 @@ export default function CongressPage() {
                 className={styles.searchInput}
                 placeholder="검색어를 입력하세요."
                 value={inputText}
-                onChange={(e) => setInputText(e.target.value)}
-                onKeyDown={(e) => {
+                onChange={(e) => {
+                  setInputText(e.target.value);
+                  console.log("[input onChange]", e.target.value);
+                }}
+                onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => {
+                  const composing =
+                    (e.nativeEvent as any)?.isComposing === true;
+
+                  if (composing) return;
+
                   if (e.key === "Enter") {
-                    setSearchKeyword(inputText.trim());
+                    const v = e.currentTarget.value.trim();
+
+                    setSearchKeyword(v);
                     setCurrentPage(1);
                   }
                 }}
@@ -443,14 +461,7 @@ export default function CongressPage() {
         </section>
 
         {/* 카드리스트 영역 */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(4, 1fr)", // 한 줄에 4개
-            gap: "24px",
-            marginTop: "40px",
-          }}
-        >
+        <div className={styles.cardGrid}>
           {loading && <p>로딩중...</p>}
           {!loading && items.length === 0 && <p>등록된 청원이 없습니다.</p>}
 

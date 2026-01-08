@@ -12,6 +12,8 @@ type DetailHeroCardProps = {
   badge: string;
   title: string;
 
+  preTitle?: string;
+
   meta: MetaItem[];
 
   agreeCount: number;
@@ -41,12 +43,10 @@ function hasValue(v: React.ReactNode) {
   return s.length > 0 && s !== "undefined" && s !== "null";
 }
 
-/* =========================
+function getStringValue(v: React.ReactNode) {
+  return typeof v === "string" ? v : null;
+}
 
-//
-// 날짜 유틸 (ListCard와 동일)
-//
-========================= */
 function parseDate(dateStr: string) {
   const normalized = dateStr.trim().replace(/\./g, "-");
   return new Date(normalized + "T00:00:00");
@@ -68,6 +68,7 @@ function calcDday(endDate: string) {
 export default function DetailHeroCard({
   badge,
   title,
+  preTitle,
   meta,
   agreeCount,
   percent,
@@ -88,17 +89,14 @@ export default function DetailHeroCard({
     return m;
   }, [meta]);
 
-  /* =========================
-   * ✅ 동의기간 기반 D-Day 뱃지 계산
-   * UX / 스타일 그대로, 텍스트만 변경
-   ========================= */
   const computedStatusPill = useMemo(() => {
-    const period = metaMap.get("동의기간")?.value;
-    if (!hasValue(period)) return statusPill;
+    const periodNode = metaMap.get("동의기간")?.value;
+    if (!hasValue(periodNode)) return statusPill;
 
-    // "YYYY.MM.DD ~ YYYY.MM.DD"
-    const raw = String(period);
-    const parts = raw.split("~").map((s) => s.trim());
+    const periodStr = getStringValue(periodNode);
+    if (!periodStr) return statusPill;
+
+    const parts = periodStr.split("~").map((s) => s.trim());
     if (parts.length < 2) return statusPill;
 
     const endDate = parts[1];
@@ -202,6 +200,10 @@ export default function DetailHeroCard({
           </button>
         </div>
 
+        {preTitle?.trim() ? (
+          <div className={styles.preTitle}>{preTitle}</div>
+        ) : null}
+
         <h1 className={styles.title}>{title}</h1>
 
         <div className={styles.divider} />
@@ -231,7 +233,11 @@ export default function DetailHeroCard({
           <div className={styles.left}>
             <div className={styles.statsRow}>
               <div className={styles.people}>
-                <img src="/numberofpeople.svg" alt="" className={styles.peopleIcon} />
+                <img
+                  src="/numberofpeople.svg"
+                  alt=""
+                  className={styles.peopleIcon}
+                />
                 <span className={styles.peopleText}>
                   {agreeCount.toLocaleString()}명
                 </span>
@@ -241,10 +247,7 @@ export default function DetailHeroCard({
             </div>
 
             <div className={styles.progressTrack}>
-              <div
-                className={styles.progressFill}
-                style={{ width: `${value}%` }}
-              />
+              <div className={styles.progressFill} style={{ width: `${value}%` }} />
             </div>
           </div>
 

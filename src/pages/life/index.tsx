@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import styles from "@/styles/Congress.module.css";
 import { useLoginToast } from "@/hooks/useLoginToast";
 import LoginToast from "@/components/LoginToast";
@@ -68,6 +69,21 @@ export default function LifePage() {
   };
 
   const { toast, toastHide, showLoginToast } = useLoginToast();
+
+  const router = useRouter();
+
+  useEffect(() => {
+    setActiveStatus("ongoing");
+    setSortOption("최신순");
+    setIsSortOpen(false);
+
+    setSearchInput("");
+    setSearchKeyword("");
+
+    setCurrentPage(1);
+
+    router.replace("/life", undefined, { shallow: true });
+  }, [router.isReady, router.query.reset]);
 
   // 바깥 클릭하면 정렬 드롭다운 닫기
   useEffect(() => {
