@@ -1,10 +1,11 @@
-// mora/src/hooks/useScrap.ts
+
+
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { deleteScraps, getMyScraps, postScrap, ScrapItem } from "@/lib/scrapApi";
 
 type UseScrapOptions = {
   petitionId: number;
-  onRequireLogin?: () => void; // 401일 때 실행
+  onRequireLogin?: () => void;
 };
 
 export function useScrap({ petitionId, onRequireLogin }: UseScrapOptions) {
@@ -22,42 +23,47 @@ export function useScrap({ petitionId, onRequireLogin }: UseScrapOptions) {
       const list = await getMyScraps();
       setScraps(list);
     } catch (e: any) {
-      if (e?.status === 401) {
-        setScraps([]); // 미로그인은 "스크랩 없음"으로 처리
-      } else {
-        throw e;
-      }
+      if (e?.status === 401) setScraps([]);
+      else throw e;
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
+    if (!petitionId) return;
     refresh();
-  }, [refresh]);
+  }, [petitionId, refresh]);
+
+  /** ✅ next 상태로 확정 분기 */
+  const setScrap = useCallback(
+    async (next: boolean) => {
+      if (!petitionId) return;
+      if (loading) return;
+
+      setLoading(true);
+      try {
+        if (next) await postScrap(petitionId);
+        else await deleteScraps([petitionId]);
+
+        await refresh();
+      } catch (e: any) {
+        if (e?.status === 401) {
+          setScraps([]);
+          onRequireLogin?.();
+          return;
+        }
+        throw e;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [petitionId, loading, refresh, onRequireLogin]
+  );
 
   const toggle = useCallback(async () => {
-    if (loading) return; // 연타 방지
-    setLoading(true);
+    await setScrap(!isScrapped);
+  }, [isScrapped, setScrap]);
 
-    try {
-      if (isScrapped) {
-        await deleteScraps([petitionId]);
-      } else {
-        await postScrap(petitionId);
-      }
-      await refresh();
-    } catch (e: any) {
-      if (e?.status === 401) {
-        setScraps([]); // 상태 일관성
-        onRequireLogin?.();
-        return;
-      }
-      throw e;
-    } finally {
-      setLoading(false);
-    }
-  }, [loading, isScrapped, petitionId, refresh, onRequireLogin]);
-
-  return { scraps, isScrapped, loading, refresh, toggle };
+  return { scraps, isScrapped, loading, refresh, toggle, setScrap };
 }

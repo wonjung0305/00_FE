@@ -85,10 +85,7 @@ function normalizeLaws(data: any): LawItem[] {
     .map((it: any) => {
       const title = safeString(it?.title, "");
       if (!title) return null;
-      return {
-        title,
-        summary: safeString(it?.summary, ""),
-      };
+      return { title, summary: safeString(it?.summary, "") };
     })
     .filter(Boolean) as LawItem[];
 }
@@ -105,16 +102,15 @@ export default function PetitionDetailPage() {
   const token = useAuthStore((s) => s.token);
   const isAuthed = !!token;
 
-  // ✅ 북마크 훅 연결 (petitionId가 null일 때 훅이 오작동하지 않도록 0 넣고, 내부에서 401 처리)
   const {
     isScrapped,
     loading: scrapLoading,
-    toggle: toggleScrap,
+    setScrap,
   } = useScrap({
     petitionId: petitionId ?? 0,
     onRequireLogin: () => {
       alert("로그인이 필요합니다.");
-      // router.push("/login"); // 원하면 이동
+      // router.push("/login");
     },
   });
 
@@ -143,7 +139,6 @@ export default function PetitionDetailPage() {
     ])
       .then(([detailData, lawsData]) => {
         if (!alive) return;
-
         setDetail(detailData);
         setLaws(normalizeLaws(lawsData));
         setGoodLocal(safeNumber(detailData.good, 0));
@@ -172,28 +167,14 @@ export default function PetitionDetailPage() {
   const percent = useMemo(() => computePercent(detail?.allows), [detail?.allows]);
 
   const heroMeta = useMemo(() => {
-    const period = `${formatDotDate(detail?.finalDate)} ~ ${formatDotDate(detail?.voteEndDate)}`;
-
+    const period = `${formatDotDate(detail?.voteStartDate)} ~ ${formatDotDate(detail?.voteEndDate)}`;
     return [
       { iconSrc: "/proicons_calendar.svg", label: "동의기간", value: period, valueHighlight: true },
-      {
-        iconSrc: "/Group (2).svg",
-        label: "소관위원회",
-        value: safeString(detail?.department, "-"),
-      },
+      { iconSrc: "/Group (2).svg", label: "소관위원회", value: safeString(detail?.department, "-") },
       { iconSrc: "/Group (1).svg", label: "상태", value: statusLabel(detail?.status) },
       { iconSrc: "/proicons_attach.svg", label: "청원분야", value: badge },
-      {
-        iconSrc: "/proicons_send.svg",
-        label: "위원회회부일",
-        value: detail?.voteStartDate ? formatDotDate(detail.voteStartDate) : "-",
-      },
-      {
-        iconSrc: "/proicons_script.svg",
-        label: "처리결과",
-        value: safeString(detail?.result, "-"),
-        valueHighlight: true,
-      },
+      { iconSrc: "/proicons_send.svg", label: "위원회회부일", value: detail?.voteStartDate ? formatDotDate(detail.finalDate) : "-" },
+      { iconSrc: "/proicons_script.svg", label: "처리결과", value: safeString(detail?.result, "-"), valueHighlight: true },
     ];
   }, [
     detail?.voteStartDate,
@@ -207,18 +188,8 @@ export default function PetitionDetailPage() {
 
   const miniMeta = useMemo(() => {
     return [
-      {
-        iconSrc: "/proicons_calendar.svg",
-        label: "마감날짜",
-        value: formatDotDate(detail?.voteEndDate),
-        valueHighlight: true,
-      },
-      {
-        iconSrc: "/proicons_script.svg",
-        label: "처리결과",
-        value: safeString(detail?.result, "-"),
-        valueHighlight: true,
-      },
+      { iconSrc: "/proicons_calendar.svg", label: "마감날짜", value: formatDotDate(detail?.voteEndDate), valueHighlight: true },
+      { iconSrc: "/proicons_script.svg", label: "처리결과", value: safeString(detail?.result, "-"), valueHighlight: true },
     ];
   }, [detail?.voteEndDate, detail?.result]);
 
@@ -302,10 +273,14 @@ export default function PetitionDetailPage() {
             agreeCount={agreeCount}
             percent={percent}
             statusPill="마감"
-            bookmarked={isScrapped}              // ✅ 제어형 상태
-            bookmarkLoading={scrapLoading}       // ✅ 로딩 시 연타 방지
+            bookmarked={isScrapped}
+            bookmarkLoading={scrapLoading || isScrapped}
             onToggleBookmark={async () => {
-              await toggleScrap();              // ✅ POST/DELETE는 훅이 처리
+              if (isScrapped) {
+                alert("북마크 해제는 마이페이지에서 할 수 있어요.");
+                return;
+              }
+              await setScrap(true);
             }}
             onClickGo={onClickGo}
           />

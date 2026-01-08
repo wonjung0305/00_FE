@@ -19,13 +19,13 @@ type DetailHeroCardProps = {
 
   statusPill?: string;
 
-  /** ✅ 제어형: 부모가 상태를 내려줌 */
+  /** ✅ 제어형 상태 */
   bookmarked: boolean;
 
-  /** ✅ 서버 토글(스크랩 API) */
-  onToggleBookmark?: (nextBookmarked: boolean) => Promise<void> | void;
+  /** ✅ 클릭 시 다음 상태를 넘김 */
+  onToggleBookmark?: (next: boolean) => Promise<void> | void;
 
-  /** ✅ 외부 로딩 상태(훅 loading) */
+  /** ✅ 로딩 시 버튼 잠금 */
   bookmarkLoading?: boolean;
 
   onClickGo?: () => void;
@@ -60,7 +60,7 @@ export default function DetailHeroCard({
 }: DetailHeroCardProps) {
   const value = Math.max(0, Math.min(100, percent));
 
-  // ✅ 내부 pending으로 연타 방지(외부 loading과 별개)
+  // 내부 pending(연타 방지)
   const [pending, setPending] = useState(false);
   const disabled = bookmarkLoading || pending;
 
@@ -148,7 +148,6 @@ export default function DetailHeroCard({
 
   const handleBookmark = async () => {
     if (disabled) return;
-
     const next = !bookmarked;
 
     try {
@@ -163,11 +162,7 @@ export default function DetailHeroCard({
     <section className={styles.card}>
       <div className={styles.inner}>
         <div className={styles.topRow}>
-          {statusPill ? (
-            <span className={styles.statusPill}>{statusPill}</span>
-          ) : (
-            <span />
-          )}
+          {statusPill ? <span className={styles.statusPill}>{statusPill}</span> : <span />}
 
           <button
             type="button"
@@ -214,14 +209,8 @@ export default function DetailHeroCard({
           <div className={styles.left}>
             <div className={styles.statsRow}>
               <div className={styles.people}>
-                <img
-                  src="/numberofpeople.svg"
-                  alt=""
-                  className={styles.peopleIcon}
-                />
-                <span className={styles.peopleText}>
-                  {agreeCount.toLocaleString()}명
-                </span>
+                <img src="/numberofpeople.svg" alt="" className={styles.peopleIcon} />
+                <span className={styles.peopleText}>{agreeCount.toLocaleString()}명</span>
               </div>
 
               <span className={styles.percent}>{value}%</span>
