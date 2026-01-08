@@ -43,15 +43,22 @@ export default function LoginPage() {
               className={styles.googleBtn}
               type="button"
               onClick={() => {
-  const base = process.env.NEXT_PUBLIC_SERVER_BASE_URL;
-  alert(`BASE=${base}`);
+                const base = process.env.NEXT_PUBLIC_SERVER_BASE_URL;
+                if (!base) {
+                  console.error("NEXT_PUBLIC_SERVER_BASE_URL 없음");
+                  return;
+                }
 
-  const origin = "https://moragora.site";
-  const url = `${base}/oauth2/authorization/google?origin=${encodeURIComponent(origin)}`;
-  alert(`LOGIN URL=${url}`);
+                const origin = window.location.origin;
 
-  window.location.href = url;  // ✅ 확인 끝나면 이 줄 다시 켜
-}}
+                console.log("base:", base);
+                console.log("origin:", origin);
+
+                const url = `${base}/oauth2/authorization/google?origin=${encodeURIComponent(
+                  origin
+                )}`;
+                window.location.href = url;
+              }}
             >
               <span className={styles.googleIcon} aria-hidden />
               Google 계정으로 로그인
