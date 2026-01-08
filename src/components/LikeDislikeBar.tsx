@@ -6,6 +6,7 @@ type Props = {
   petitionId: number;
   good: number;
   bad: number;
+  isAuthed: boolean;
   onChangeCounts?: (nextGood: number, nextBad: number) => void;
 };
 
@@ -75,7 +76,7 @@ export default function LikeDislikeBar({ petitionId, good, bad, onChangeCounts }
     } catch (error: any) {
       applyLocalCounts(my);
       setMy(my);
-
+      
       if (error.response?.status === 401) {
         if (confirm("로그인이 필요한 서비스입니다.\n로그인 하시겠습니까?")) {
           window.location.href = "/login";

@@ -2,7 +2,7 @@ import styles from "@/styles/ProsCard.module.css";
 
 type Item = {
   title: string;
-  desc: string;
+  desc: React.ReactNode;
 };
 
 type Props = {

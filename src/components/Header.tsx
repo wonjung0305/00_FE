@@ -7,11 +7,16 @@ import { useAuthStore } from "@/store/authStore";
 // token으로 저장된 내용에 따라서 프로필 들고오기
 const getProfileSrc = (status?: number) => {
   switch (status) {
-    case 0: return "/profile_0.svg"; // 변화추구형
-    case 1: return "/profile_1.svg"; // 안전중시형
-    case 2: return "/profile_2.svg"; // 실용중심형
-    case 3: return "/profile_3.svg"; // 가치지향형
-    default: return "/profile.svg";
+    case 0:
+      return "/profile_Reformer.svg"; // 변화추구형
+    case 1:
+      return "/profile_Stabilizer.svg"; // 안전중시형
+    case 2:
+      return "/profile_Pragmatist.svg"; // 실용중심형
+    case 3:
+      return "/profile_Value-driven.svg"; // 가치지향형
+    default:
+      return "/profile.svg";
   }
 };
 
@@ -69,9 +74,14 @@ export default function Header() {
         {/* 오른쪽 */}
         <div className={styles.rights}>
           {loading ? null : user ? (
-            /* ✅ 기존 로그아웃 버튼 자리 → 마이페이지 아이콘 */
+            /* 기존 로그아웃 버튼 자리 → 마이페이지 아이콘 */
             <Link href="/mypage" className={styles.profileBtn}>
-              <Image src="/profile.svg" alt="마이페이지" width={32} height={32} />
+              <Image
+                src={getProfileSrc(user?.status)}
+                alt="마이페이지"
+                width={40}
+                height={40}
+              />
             </Link>
           ) : (
             <Link href="/login" className={styles.loginBtn}>

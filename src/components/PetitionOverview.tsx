@@ -1,22 +1,21 @@
 import styles from "@/styles/PetitionOverview.module.css";
 
 type Props = {
-  text: string;
+  title: string; 
+  text: string;  
 };
 
-export default function PetitionOverview({ text }: Props) {
+export default function PetitionOverview({ title, text }: Props) {
   if (!text) return null;
-
-  const [title, ...rest] = text.split("\n");
-  const body = rest.join("\n").trim();
 
   return (
     <section className={styles.section}>
       <h2 className={styles.heading}>개요</h2>
 
       <div className={styles.box}>
-        <div className={styles.question}>{title}</div>
-        {body && <div className={styles.body}>{body}</div>}
+        {title && <div className={styles.question}>{title}</div>}
+
+        <div className={styles.body}>{text}</div>
       </div>
     </section>
   );

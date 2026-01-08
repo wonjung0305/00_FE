@@ -136,14 +136,57 @@ const TestResultPage: NextPage = () => {
   // 검사 다시하기, 메인 화면으로 이동
   const goRetry = () => router.push("/mypage/test");
 
+  const isAuthed = useAuthStore((s) => s.isAuthenticated);
+  const token = useAuthStore((s) => s.token);
+  const me = useAuthStore((s) => s.user);
+
   // 메인으로: 서버에 결과+닉네임 보내고 JWT 받아서 저장한 뒤 이동
   const goMain = async () => {
-    // 1) type 정규화
+    // type 정규화
     const t = router.query.type;
     const type: ChoiceType | null =
       t === "A" || t === "B" || t === "C" || t === "D" ? t : null;
 
-    // 2) pendingOnboarding 읽기 (signup에서 저장해둔 email/nickname)
+    if (!type) {
+      router.replace("/mypage/test");
+      return;
+    }
+
+    // 서버로 보내고 JWT 받기
+    const status = TYPE_TO_STATUS[type]; // A->0, B->1, C->2, D->3
+
+    const payload = {
+      name: me?.name ?? "",
+      age: me?.age ?? 0,
+      status,
+      email: me?.email ?? "",
+    };
+
+    // 토큰 없으면 업데이트 막기
+    if (isAuthed && !token) {
+      router.replace("/login");
+      return;
+    }
+
+    if (isAuthed) {
+      const r = await api.patch("/api/user", payload, {
+        validateStatus: () => true,
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+      });
+
+      if (r.status >= 200 && r.status < 400) {
+        // store 갱신 -> 헤더/프로필 카드 이미지 즉시 바뀜
+        await useAuthStore.getState().fetchMe();
+
+        router.replace("/mypage");
+        return;
+      }
+
+      console.error("status 업데이트 실패:", r.status, r.data);
+      return;
+    }
+
+    // endingOnboarding 읽기 (signup에서 저장해둔 email/nickname)
     const raw = sessionStorage.getItem("pendingOnboarding");
     const pending = raw ? JSON.parse(raw) : null;
 
@@ -155,9 +198,6 @@ const TestResultPage: NextPage = () => {
       router.replace("/login");
       return;
     }
-
-    // 3) 서버로 보내고 JWT 받기
-    const status = TYPE_TO_STATUS[type]; // A->0, B->1, C->2, D->3
 
     try {
       const r = await api.post(
@@ -240,7 +280,7 @@ const TestResultPage: NextPage = () => {
             검사 다시하기
           </button>
           <button className={styles.primaryBtn} onClick={goMain}>
-            로그인하러 가기
+            {isAuthed ? "저장하고 돌아가기" : "로그인하러 가기"}
           </button>
         </section>
       </main>

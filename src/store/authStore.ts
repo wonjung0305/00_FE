@@ -10,6 +10,8 @@ interface User {
   email?: string;
   name?: string;
   role?: string;
+
+  age?: number;
   status?: number; // 성향 저장 0 ~ 3
 }
 
@@ -124,14 +126,16 @@ export const useAuthStore = create<AuthState>()(
       }),
 
       // 새로고침/재접속 시에도 token 있으면 내정보 다시 조회
-        // 로그아웃 전까지 정보 유지
+      // 로그아웃 전까지 정보 유지
       onRehydrateStorage: () => (state) => {
         if (!state) return;
 
         if (state.token) {
           state.fetchMe(); // token 있으면 /user/me 호출해서 user 채움
         } else {
-          state.loading = false; // token 없으면 로딩 끝
+          // state.loading = false; // token 없으면 로딩 끝
+          state.logout(); // 또는 아래 한 줄로도 가능
+          // logout으로 초기화(loading false 포함)하는게 깔끔
         }
       },
     }

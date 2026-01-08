@@ -29,6 +29,13 @@
   background: #d9d9d9;
 
   flex-shrink: 0; /* 원 안찌그러지게 */
+
+  position: relative; 
+  overflow: hidden
+}
+
+.avatarImage {
+  object-fit: cover;   /* 원 꽉 채움 */
 }
 
 /* 오른쪽 텍스트 영역 전체*/

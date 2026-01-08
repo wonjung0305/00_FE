@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { useRouter } from "next/router";
 import axios from "axios";
 
@@ -15,25 +15,33 @@ import CommentsSection from "@/components/CommentsSection";
 
 import styles from "@/styles/PetitionDetail.module.css";
 import { useAuthStore } from "@/store/authStore";
+import { useScrap } from "@/hooks/useScrap";
 
 type PetitionDetailResponse = {
   title?: string;
+  subTitle?: string;
   category?: string;
   type?: number;
   status?: number;
+
   voteStartDate?: string;
   voteEndDate?: string;
-  committee?: string;
-  committeeDate?: string;
+
+  finalDate?: string;
   result?: string;
+  department?: string;
+
   petitionNeeds?: string;
   petitionSummary?: string;
   content?: string;
+
   positiveEx?: string;
   negativeEx?: string;
+
   good?: number;
   bad?: number;
   allows?: number;
+
   url?: string;
   petitionUrl?: string;
 };
@@ -97,6 +105,19 @@ export default function PetitionDetailPage() {
   const token = useAuthStore((s) => s.token);
   const isAuthed = !!token;
 
+  // ✅ 북마크 훅 연결 (petitionId가 null일 때 훅이 오작동하지 않도록 0 넣고, 내부에서 401 처리)
+  const {
+    isScrapped,
+    loading: scrapLoading,
+    toggle: toggleScrap,
+  } = useScrap({
+    petitionId: petitionId ?? 0,
+    onRequireLogin: () => {
+      alert("로그인이 필요합니다.");
+      // router.push("/login"); // 원하면 이동
+    },
+  });
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [detail, setDetail] = useState<PetitionDetailResponse | null>(null);
@@ -151,17 +172,21 @@ export default function PetitionDetailPage() {
   const percent = useMemo(() => computePercent(detail?.allows), [detail?.allows]);
 
   const heroMeta = useMemo(() => {
-    const period = `${formatDotDate(detail?.voteStartDate)} ~ ${formatDotDate(detail?.voteEndDate)}`;
+    const period = `${formatDotDate(detail?.finalDate)} ~ ${formatDotDate(detail?.voteEndDate)}`;
 
     return [
       { iconSrc: "/proicons_calendar.svg", label: "동의기간", value: period, valueHighlight: true },
-      { iconSrc: "/Group (2).svg", label: "소관위원회", value: safeString(detail?.committee, "-") },
+      {
+        iconSrc: "/Group (2).svg",
+        label: "소관위원회",
+        value: safeString(detail?.department, "-"),
+      },
       { iconSrc: "/Group (1).svg", label: "상태", value: statusLabel(detail?.status) },
       { iconSrc: "/proicons_attach.svg", label: "청원분야", value: badge },
       {
         iconSrc: "/proicons_send.svg",
         label: "위원회회부일",
-        value: detail?.committeeDate ? formatDotDate(detail.committeeDate) : "-",
+        value: detail?.voteStartDate ? formatDotDate(detail.voteStartDate) : "-",
       },
       {
         iconSrc: "/proicons_script.svg",
@@ -170,7 +195,15 @@ export default function PetitionDetailPage() {
         valueHighlight: true,
       },
     ];
-  }, [detail, badge]);
+  }, [
+    detail?.voteStartDate,
+    detail?.voteEndDate,
+    detail?.department,
+    detail?.status,
+    detail?.finalDate,
+    detail?.result,
+    badge,
+  ]);
 
   const miniMeta = useMemo(() => {
     return [
@@ -187,23 +220,34 @@ export default function PetitionDetailPage() {
         valueHighlight: true,
       },
     ];
-  }, [detail]);
+  }, [detail?.voteEndDate, detail?.result]);
 
   const aiText = useMemo(
     () => safeString(detail?.petitionSummary, "AI 요약 정보가 아직 없어요."),
     [detail?.petitionSummary]
   );
 
+  const overviewTitle = useMemo(() => {
+    const v = detail?.subTitle;
+    return typeof v === "string" && v.trim() ? v : "";
+  }, [detail?.subTitle]);
+
   const overviewText = useMemo(() => {
     const t = detail?.petitionNeeds || detail?.content || "";
     return safeString(t, "개요 정보가 아직 없어요.");
   }, [detail?.petitionNeeds, detail?.content]);
 
-  const onClickGo = useMemo(() => {
-    const url = detail?.petitionUrl || detail?.url;
-    if (!url) return undefined;
-    return () => window.open(url, "_blank", "noreferrer");
-  }, [detail?.petitionUrl, detail?.url]);
+  const onClickGo = useCallback(() => {
+    const raw = (detail?.url || detail?.petitionUrl || "").trim();
+
+    if (!raw) {
+      alert("바로가기 링크가 아직 등록되지 않았어요.");
+      return;
+    }
+
+    const finalUrl = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+    window.open(finalUrl, "_blank", "noopener,noreferrer");
+  }, [detail?.url, detail?.petitionUrl]);
 
   const prosItems = useMemo(() => {
     const s = safeString(detail?.positiveEx, "");
@@ -258,7 +302,11 @@ export default function PetitionDetailPage() {
             agreeCount={agreeCount}
             percent={percent}
             statusPill="마감"
-            onClickBookmark={() => {}}
+            bookmarked={isScrapped}              // ✅ 제어형 상태
+            bookmarkLoading={scrapLoading}       // ✅ 로딩 시 연타 방지
+            onToggleBookmark={async () => {
+              await toggleScrap();              // ✅ POST/DELETE는 훅이 처리
+            }}
             onClickGo={onClickGo}
           />
 
@@ -266,7 +314,7 @@ export default function PetitionDetailPage() {
             <div className={styles.leftCol}>
               <AISummaryCard text={aiText} />
 
-              <PetitionOverview text={overviewText} />
+              <PetitionOverview title={overviewTitle} text={overviewText} />
 
               <RelatedPolicyCard policies={laws} error={lawsError} />
 
@@ -278,6 +326,7 @@ export default function PetitionDetailPage() {
                 petitionId={petitionId}
                 good={goodLocal}
                 bad={badLocal}
+                isAuthed={isAuthed}
                 onChangeCounts={(g, b) => {
                   setGoodLocal(g);
                   setBadLocal(b);

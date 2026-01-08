@@ -5,7 +5,7 @@ type Props = {
   isOpen: boolean; // 열렸는지
   initialNickname: string; // 초기 닉네임
   onClose: () => void;
-  onSave: (nextNickname: string) => void;
+  onSave: (nextNickname: string) => Promise<void>;
   profileImageUrl?: string; // 있으면 이미지로, 없으면 회색 원
 };
 
@@ -43,34 +43,16 @@ export default function EditModal({
 
   const handleSave = async () => {
     const trimmed = nickname.trim();
-    if (!trimmed) return; // 공백 저장 방지
+    if (!trimmed) return;
 
     setIsSaving(true);
     setError(null);
 
     try {
-      // !!!!!!!!!!!!!!!!!! API 엔드포인트로 바꿔야 함
-      const res = await fetch("/api/user/nickname", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nickname: trimmed }),
-      });
-
-      if (!res.ok) {
-        // !!!!!!!!!! 중복을 409로 준다고 가정 (서버 규격에 맞게 수정)
-        if (res.status === 409) {
-          setError("사용할 수 없는 닉네임입니다.");
-          return;
-        }
-
-        setError("저장에 실패했습니다. 잠시 후 다시 시도해주세요.");
-        return;
-      }
-
-      // 성공
-      onSave(trimmed);
-    } catch (e) {
-      setError("네트워크 오류가 발생했습니다.");
+      // ProfileCard에게 저장 요청 전달
+      await onSave(trimmed);
+    } catch {
+      setError("저장에 실패했습니다.");
     } finally {
       setIsSaving(false);
     }
@@ -104,6 +86,12 @@ export default function EditModal({
                   onChange={(e) => {
                     setNickname(e.target.value);
                     if (error) setError(null);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleSave();
+                    }
                   }}
                   placeholder="닉네임을 입력하세요"
                 />

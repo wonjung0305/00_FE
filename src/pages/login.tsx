@@ -1,7 +1,14 @@
 import { useEffect } from "react";
+import { useAuthStore } from "@/store/authStore";
 import styles from "@/styles/Login.module.css";
 
 export default function LoginPage() {
+  const checkLoginFromUrl = useAuthStore((s) => s.checkLoginFromUrl);
+
+  useEffect(() => {
+    checkLoginFromUrl();
+  }, [checkLoginFromUrl]);
+
   useEffect(() => {
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
@@ -36,14 +43,15 @@ export default function LoginPage() {
               className={styles.googleBtn}
               type="button"
               onClick={() => {
-                const base = process.env.NEXT_PUBLIC_SERVER_BASE_URL;
-                if (!base) return;
+  const base = process.env.NEXT_PUBLIC_SERVER_BASE_URL;
+  alert(`BASE=${base}`);
 
-                const origin = window.location.origin;
-                window.location.href = `${base}/oauth2/authorization/google?redirect_origin=${encodeURIComponent(
-                  origin
-                )}`;
-              }}
+  const origin = window.location.origin;
+  const url = `${base}/oauth2/authorization/google?origin=${encodeURIComponent(origin)}`;
+  alert(`LOGIN URL=${url}`);
+
+  // window.location.href = url;  // ✅ 확인 끝나면 이 줄 다시 켜
+}}
             >
               <span className={styles.googleIcon} aria-hidden />
               Google 계정으로 로그인
