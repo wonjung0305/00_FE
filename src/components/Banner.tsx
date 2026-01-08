@@ -21,12 +21,11 @@ type BannerViewItem = {
 };
 
 // !!!!!!!!! 매주 여기만 수정하면 되는 배너 이미지 세트 !!!!!!!!!
-// 이미지 같은거 두 개씩 넣어야 함
 const BANNER_IMAGES = [
-  "/banners/banner_01.jpg",
-  "/banners/banner_02.jpg",
-  "/banners/banner_03.jpg",
-  "/banners/banner_04.jpg",
+  "/banners/banner_01.svg",
+  "/banners/banner_02.svg",
+  "/banners/banner_03.svg",
+  "/banners/banner_04.svg",
 ];
 
 export default function Banner() {
@@ -80,6 +79,7 @@ export default function Banner() {
   return (
     <>
       <div className={styles.bannerWrapper}>
+        {items.length > 0 && (
         <Swiper
           /* 화살표, 자동재생 사용 */
           modules={[Navigation, Autoplay]}
@@ -121,6 +121,7 @@ export default function Banner() {
             </SwiperSlide>
           ))}
         </Swiper>
+        )}
       </div>
     </>
   );

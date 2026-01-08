@@ -80,6 +80,32 @@ export default function DetailHeroCard({
       "처리결과",
     ];
 
+    function formatNumber(n: number) {
+      return n.toLocaleString("ko-KR");
+    }
+    
+    // 날짜 파싱 보조=> "YYYY.MM.DD", "YYYY-MM-DD" 형태를 일정하게 수정하는 것
+    function parseDate(dateStr: string) {
+      const normalized = dateStr.trim().replace(/\./g, "-"); // . -> -
+      const d = new Date(normalized + "T00:00:00");
+      return d;
+    }
+    
+    // D-Day 계산
+    function calcDday(endDate: string) {
+      const end = parseDate(endDate);
+      const today = new Date();
+    
+      if (isNaN(end.getTime())) return null;
+    
+      end.setHours(0, 0, 0, 0);
+      today.setHours(0, 0, 0, 0);
+    
+      const diffMs = end.getTime() - today.getTime();
+      return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+    }
+    
+
     return order.map((label) => {
       const found = metaMap.get(label);
 
