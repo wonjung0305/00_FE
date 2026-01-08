@@ -50,7 +50,7 @@ export default function LoginPage() {
   const url = `${base}/oauth2/authorization/google?origin=${encodeURIComponent(origin)}`;
   alert(`LOGIN URL=${url}`);
 
-  // window.location.href = url;  // ✅ 확인 끝나면 이 줄 다시 켜
+  window.location.href = url;  // ✅ 확인 끝나면 이 줄 다시 켜
 }}
             >
               <span className={styles.googleIcon} aria-hidden />
