@@ -14,6 +14,8 @@ export default function SignupPage() {
 
   const [checking, setChecking] = useState(false);
   const [isDuplicate, setIsDuplicate] = useState(false);
+  const [checkedName, setCheckedName] = useState("");
+  const [checkError, setCheckError] = useState("");
 
   useEffect(() => {
     const q = router.query.email;
@@ -32,38 +34,89 @@ export default function SignupPage() {
   const trimmedEmail = useMemo(() => email.trim(), [email]);
 
   const canSubmit = useMemo(
-    () =>
-      !!trimmed &&
-      !!trimmedEmail &&
-      !isDuplicate &&
-      !submitting &&
-      !checking &&
-      !submitError,
-    [trimmed, trimmedEmail, isDuplicate, submitting, checking, submitError]
+    () => !!trimmed && !!trimmedEmail && !submitting,
+    [trimmed, trimmedEmail, submitting]
   );
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setName(e.target.value);
     if (!touched) setTouched(true);
+
+    setCheckedName("");
+    if (isDuplicate) setIsDuplicate(false);
     if (submitError && email) setSubmitError("");
   };
 
   const checkDuplicate = async (nickname: string) => {
-    if (!nickname) return;
+    const n = nickname.trim();
+    if (!n) return false;
 
     try {
       setChecking(true);
+      setCheckError("");
 
-      const r = await api.get(
-        `/api/user/check/${encodeURIComponent(nickname)}`,
-        {
-          validateStatus: () => true,
-        }
-      );
+      const r = await api.get(`/api/user/check/${encodeURIComponent(n)}`, {
+        validateStatus: () => true,
+      });
 
-      if (r.status === 302) setIsDuplicate(true);
-      else if (r.status === 200) setIsDuplicate(false);
-      else setIsDuplicate(false);
+      console.log("CHECK:", r.status, r.data);
+
+      // 서버 에러면 무조건 막기
+      if (r.status >= 400) {
+        setIsDuplicate(true); // 빨간 글씨 띄우기
+        setCheckedName("");
+        setCheckError(""); // "사용할 수 없음"만 보여주기
+        return true; // 다음 페이지 막기
+      }
+      // 2) 기본: status 기반
+      let dup = r.status === 302 || r.status === 409;
+
+      // body 기반(객체/boolean)
+      const d: any = r.data;
+
+      if (d === true) dup = true;
+      if (d === false) dup = false;
+
+      if (d && typeof d === "object") {
+        if (d.duplicate === true) dup = true;
+        if (d.isDuplicate === true) dup = true;
+        if (d.available === false) dup = true;
+        if (d.canUse === false) dup = true;
+        if (d.available === true) dup = false;
+        if (d.canUse === true) dup = false;
+      }
+
+      const text =
+        typeof d === "string"
+          ? d
+          : typeof d?.message === "string"
+          ? d.message
+          : "";
+
+      if (text) {
+        const t = text.toLowerCase();
+        // "duplicate", "exists", "already" 같은 단어가 있으면 중복으로 간주
+        if (
+          t.includes("duplicate") ||
+          t.includes("exist") ||
+          t.includes("already")
+        )
+          dup = true;
+        // 한국어 메시지면 이것도 잡기
+        if (
+          text.includes("중복") ||
+          text.includes("이미") ||
+          text.includes("사용할 수 없")
+        )
+          dup = true;
+      }
+
+      // 중복이면 빨간 글씨 뜨게 상태 세팅
+      setIsDuplicate(dup);
+      setCheckedName(n);
+      setCheckError("");
+
+      return dup;
     } finally {
       setChecking(false);
     }
@@ -78,17 +131,37 @@ export default function SignupPage() {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setTouched(true);
-    if (!canSubmit) return;
 
-    sessionStorage.setItem(
-      "pendingOnboarding",
-      JSON.stringify({
-        email: trimmedEmail,
-        nickname: trimmed,
-      })
-    );
+    if (!trimmed || !trimmedEmail) return;
+    if (submitting) return;
 
-    router.replace("/signup/complete");
+    setSubmitError("");
+    setCheckError("");
+    setIsDuplicate(false);
+
+    setSubmitting(true);
+
+    try {
+      // signUp을 미리 시도해서 중복/실패를 판정
+      const r = await api.post(
+        "/api/user/signUp",
+        { email: trimmedEmail, name: trimmed, age: 0, status: 0 }, // status는 임시값(설문 후 patch할 거면 0으로)
+        { validateStatus: () => true }
+      );
+
+      if (r.status === 200) {
+        // 성공이면 설문으로 이동
+        router.replace("/signup/complete");
+        return;
+      }
+
+      // 실패(중복 포함)면 이동 막고 빨간 글씨
+      setIsDuplicate(true); // "사용할 수 없는 닉네임" 문구 띄우기
+      setSubmitError("회원가입에 실패했습니다. 닉네임을 다시 확인해 주세요.");
+      return;
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -127,7 +200,11 @@ export default function SignupPage() {
           {isDuplicate && (
             <p className={styles.errorText}>사용할 수 없는 닉네임입니다.</p>
           )}
-          {!isDuplicate && !!submitError && (
+
+          {!isDuplicate && !!checkError && (
+            <p className={styles.errorText}>{checkError}</p>
+          )}
+          {!isDuplicate && !checkError && !!submitError && (
             <p className={styles.errorText}>{submitError}</p>
           )}
 

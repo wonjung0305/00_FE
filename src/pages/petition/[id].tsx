@@ -96,7 +96,6 @@ function normalizeLaws(data: any): LawItem[] {
 
 export default function PetitionDetailPage() {
   const router = useRouter();
-
   const { toast, toastHide, showLoginToast } = useLoginToast();
 
   const petitionId = useMemo(() => {
@@ -309,43 +308,45 @@ export default function PetitionDetailPage() {
       <Header />
       <LoginToast open={toast} hide={toastHide} />
       <div className={styles.bgLayer} />
-
+  
       <div className={styles.contentWrap}>
-        <div className={styles.container}>
-          <DetailHeroCard
-            badge={badge}
-            preTitle={overviewTitle}
-            title={title}
-            meta={heroMeta}
-            agreeCount={agreeCount}
-            percent={percent}
-            statusPill="마감"
-            bookmarked={isScrapped}
-            bookmarkLoading={thisLoading || syncing}
-            onToggleBookmark={async () => {
-              if (!petitionId) return;
-              if (!isAuthed) {
-                showLoginToast();
-                return;
-              }
-              if (thisLoading) return;
-              await toggleScrap(petitionId);
-            }}
-            onClickGo={onClickGo}
-          />
 
+        <section className={styles.whiteSection}>
+          <div className={styles.container}>
+            <DetailHeroCard
+              badge={badge}
+              preTitle={overviewTitle}
+              title={title}
+              meta={heroMeta}
+              agreeCount={agreeCount}
+              percent={percent}
+              statusPill="마감"
+              bookmarked={isScrapped}
+              bookmarkLoading={thisLoading || syncing}
+              onToggleBookmark={async () => {
+                if (!petitionId) return;
+                if (!isAuthed) {
+                  showLoginToast();
+                  return;
+                }
+                if (thisLoading) return;
+                await toggleScrap(petitionId);
+              }}
+              onClickGo={onClickGo}
+            />
+          </div>
+        </section>
+ 
+        <div className={styles.container}>
           <div className={styles.grid}>
             <div className={styles.leftCol}>
+
               <AISummaryCard text={aiText} />
-
               <PetitionOverview title="" text={overviewText} />
-
               <RelatedPolicyCard policies={laws} error={lawsError} />
-
               {showProsCons && <ProsConsSection pros={prosItems} cons={consItems} />}
-
               <SummaryNotice />
-
+ 
               <LikeDislikeBar
                 petitionId={petitionId}
                 good={goodLocal}
@@ -357,7 +358,7 @@ export default function PetitionDetailPage() {
                   setBadLocal(b);
                 }}
               />
-
+  
               <CommentsSection petitionId={petitionId} isAuthed={isAuthed} />
             </div>
 
@@ -374,10 +375,11 @@ export default function PetitionDetailPage() {
               </div>
             </aside>
           </div>
-
+  
           <div className={styles.commentsPagerSpace} />
         </div>
       </div>
     </main>
   );
-}
+  
+}  

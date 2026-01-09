@@ -4,31 +4,43 @@
   }
   
   .head {
+    position: relative;
     display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-bottom: 26px;
+    align-items: flex-end;
+    gap: 0;              
+    margin-bottom: 28px;
   }
   
   .badge {
+    position: relative;
+    z-index: 2;
+  
+    height: 34px;
+    padding: 0 10px;
+  
     display: inline-flex;
     align-items: center;
-    height: 34px;
-    padding: 0 14px;
-    border-radius: 10px;
-    background: #00A908;
+  
+    background: #00a908;
     color: #fff;
+  
     font-size: 16px;
-    font-weight: 700;
+    font-weight: 800;
     font-family: "Noto Sans KR";
-    flex: 0 0 auto;
+ 
+    border-radius: 8px 8px 0 0; 
   }
   
+  
   .rule {
-    height: 4px;
+    position: relative;
+    z-index: 1;
+  
+    height: 4px;   
     flex: 1;
-    background: #00A908;
-    border-radius: 999px;
+  
+    background: #00a908;
+    border-radius: 0 999px 999px 0; 
   }
   
   .list {

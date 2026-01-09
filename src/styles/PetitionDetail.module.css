@@ -88,3 +88,48 @@
   top: 120px;
 }
 
+/* 회색 풀폭 섹션 */
+.graySection {
+  position: relative;
+  background: transparent;
+  padding: 0 0 80px;
+}
+
+/* 배경만 100vw로 깔기 (좌/우 끝까지 회색) */
+.graySection::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100vw;
+  height: 100%;
+  background: #f5f6f8;
+  z-index: 0;
+}
+
+/* 페이지 전체 배경을 회색으로 */
+.page {
+  background: #f5f6f8;
+}
+
+/* SummaryNotice 위 영역만 흰색으로 덮기 */
+.whiteSection {
+  background: #fff;
+  padding-bottom: 24px; /* 흰 영역 마감 여백(취향) */
+}
+
+/* sticky 방해 요소 방지 */
+.rightCol,
+.miniSticky {
+  overflow: visible;
+}
+
+/* miniSticky가 원래 있으면 top만 확인 */
+.miniSticky {
+  position: sticky;
+  top: 24px;
+}
+
+
+

@@ -60,3 +60,13 @@
     color: #555;
   }
   
+
+  .likeBtn {
+    justify-content: flex-end;
+    padding-right: 22px;
+  }
+  
+  .dislikeBtn {
+    margin-right: 0;     
+    justify-content: flex-start; 
+  }

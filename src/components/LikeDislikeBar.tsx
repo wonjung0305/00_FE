@@ -61,7 +61,7 @@ export default function LikeDislikeBar({
     };
   }, [petitionId]);
 
-  // ✅ prevMy -> nextMy 전환으로 로컬 카운트 정확히 계산
+  
   const applyLocalCounts = (prevMy: null | 1 | -1, nextMy: null | 1 | -1) => {
     let g = goodCount;
     let b = badCount;
@@ -76,7 +76,6 @@ export default function LikeDislikeBar({
   };
 
   const post = async (likes: 1 | -1) => {
-    // ✅ 비로그인: 토스트만 띄우고 종료 (요청/카운트 변경 X)
     if (!isAuthed) {
       onRequireLoginToast?.();
       return;
@@ -88,7 +87,6 @@ export default function LikeDislikeBar({
     const prevMy = my;
     const nextMy = prevMy === likes ? null : likes;
 
-    // optimistic update
     applyLocalCounts(prevMy, nextMy);
     setMy(nextMy);
 
@@ -102,12 +100,9 @@ export default function LikeDislikeBar({
       );
 
       if (r.status === 401) {
-        // ✅ 롤백 (next -> prev)
+
         applyLocalCounts(nextMy, prevMy);
         setMy(prevMy);
-
-        // 여기서도 토스트로 통일하고 싶으면 onRequireLoginToast를 호출해도 됨
-        // onRequireLoginToast?.();
 
         if (confirm("로그인이 필요한 서비스입니다.\n로그인 하시겠습니까?")) {
           window.location.href = "/login";
@@ -140,27 +135,37 @@ export default function LikeDislikeBar({
   return (
     <div className={styles.wrap}>
       <div className={styles.bar}>
-        <button
-          type="button"
-          className={`${styles.btn} ${my === 1 ? styles.activeGood : ""}`}
-          onClick={() => post(1)}
-          disabled={loading}
-        >
-          <span className={styles.count}>{goodCount}</span>
-          <img src={likeIcon} alt="좋아요" className={styles.iconImg} />
-        </button>
+      <button
+        type="button"
+        className={`
+          ${styles.btn}
+          ${styles.likeBtn}
+          ${my === 1 ? styles.activeGood : ""}
+        `}
+        onClick={() => post(1)}
+        disabled={loading}
+      >
+        <span className={styles.count}>{goodCount}</span>
+        <img src={likeIcon} alt="좋아요" className={styles.iconImg} />
+      </button>
+
 
         <div className={styles.divider} />
 
         <button
           type="button"
-          className={`${styles.btn} ${my === -1 ? styles.activeBad : ""}`}
+          className={`
+            ${styles.btn}
+            ${styles.dislikeBtn}
+            ${my === -1 ? styles.activeBad : ""}
+          `}
           onClick={() => post(-1)}
           disabled={loading}
         >
           <img src={dislikeIcon} alt="싫어요" className={styles.iconImg} />
           <span className={styles.count}>{badCount}</span>
         </button>
+
       </div>
     </div>
   );

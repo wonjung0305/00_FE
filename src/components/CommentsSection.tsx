@@ -73,13 +73,13 @@ function getPageNumbers(current: number, total: number) {
 const profileSrc = (status?: number) => {
   switch (status) {
     case 0:
-      return "/profile_reformer.svg";
+      return "/profile_Reformer.svg";
     case 1:
-      return "/profile_stabilizer.svg";
+      return "/profile_Stabilizer.svg";
     case 2:
-      return "/profile_pragmatist.svg";
+      return "/profile_Pragmatist.svg";
     case 3:
-      return "/profile_value_driven.svg";
+      return "/profile_Value-driven.svg";
     default:
       return "/profile.svg";
   }
