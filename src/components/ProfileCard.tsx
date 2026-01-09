@@ -108,30 +108,22 @@ export default function ProfileCard() {
 
     setDeleting(true);
     try {
-      const r = await deleteUser(token);
+      await deleteUser();
 
-      if (r.status >= 200 && r.status < 300) {
-        // 모달 닫고
-        setIsDeleteOpen(false);
-
-        // 로컬 로그인 상태 초기화 (로그아웃)
-        logout();
-
-        // 홈으로
-        router.replace("/");
-        return;
+      // 성공처리
+      setIsDeleteOpen(false);
+      logout();
+      router.replace("/");
+    } catch (e: any) {
+      // console.error(e);
+      const status = e?.status ?? e?.response?.status;
+      if (status === 401 || status === 402) {
+        alert("로그인이 필요합니다.");
+      } else {
+        alert("회원탈퇴에 실패했습니다. 잠시 후 다시 시도해주세요.");
       }
 
-      // 실패 처리
-      console.error("회원탈퇴 실패:", r.status, r.data);
-      alert("회원탈퇴에 실패했습니다. 잠시 후 다시 시도해주세요.");
-      console.log("탈퇴 응답:", r.status, r.data, r.headers);
-      setIsDeleteOpen(false);
-    } catch (e) {
-      console.error(e);
-      alert("회원탈퇴 중 오류가 발생했습니다.");
-      
-      setIsDeleteOpen(false);
+      setIsDeleteOpen(false); // 너가 원한 흐름
     } finally {
       setDeleting(false);
     }

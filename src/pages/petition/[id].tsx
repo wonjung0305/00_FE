@@ -107,10 +107,8 @@ export default function PetitionDetailPage() {
 
   const isAuthed = useAuthStore((s) => s.isAuthenticated);
 
-  // toast
   const toggleScrap = useScrapStore((s) => s.toggleScrap);
   const syncScraps = useScrapStore((s) => s.sync);
-  const isLoading = useScrapStore((s) => s.isLoading);
   const syncing = useScrapStore((s) => s.syncing);
 
   const [loading, setLoading] = useState(true);
@@ -146,9 +144,7 @@ export default function PetitionDetailPage() {
     setLawsError(null);
 
     Promise.all([
-      axios
-        .get(`/api/petition/${petitionId}`)
-        .then((r) => r.data as PetitionDetailResponse),
+      axios.get(`/api/petition/${petitionId}`).then((r) => r.data as PetitionDetailResponse),
       axios.get(`/api/petition/laws/${petitionId}`).then((r) => r.data),
     ])
       .then(([detailData, lawsData]) => {
@@ -181,9 +177,7 @@ export default function PetitionDetailPage() {
   const percent = useMemo(() => computePercent(detail?.allows), [detail?.allows]);
 
   const heroMeta = useMemo(() => {
-    const period = `${formatDotDate(detail?.voteStartDate)} ~ ${formatDotDate(
-      detail?.voteEndDate
-    )}`;
+    const period = `${formatDotDate(detail?.voteStartDate)} ~ ${formatDotDate(detail?.voteEndDate)}`;
     return [
       {
         iconSrc: "/proicons_calendar.svg",
@@ -335,7 +329,6 @@ export default function PetitionDetailPage() {
                 return;
               }
               if (thisLoading) return;
-
               await toggleScrap(petitionId);
             }}
             onClickGo={onClickGo}
@@ -358,6 +351,7 @@ export default function PetitionDetailPage() {
                 good={goodLocal}
                 bad={badLocal}
                 isAuthed={isAuthed}
+                onRequireLoginToast={showLoginToast}
                 onChangeCounts={(g, b) => {
                   setGoodLocal(g);
                   setBadLocal(b);
@@ -365,21 +359,23 @@ export default function PetitionDetailPage() {
               />
 
               <CommentsSection petitionId={petitionId} isAuthed={isAuthed} />
-
-              <div className={styles.spacer} />
             </div>
 
             <aside className={styles.rightCol}>
-              <DetailMiniCard
-                badge={badge}
-                title={title}
-                meta={miniMeta}
-                agreeCount={agreeCount}
-                percent={percent}
-                onClickGo={onClickGo}
-              />
+              <div className={styles.miniSticky}>
+                <DetailMiniCard
+                  badge={badge}
+                  title={title}
+                  meta={miniMeta}
+                  agreeCount={agreeCount}
+                  percent={percent}
+                  onClickGo={onClickGo}
+                />
+              </div>
             </aside>
           </div>
+
+          <div className={styles.commentsPagerSpace} />
         </div>
       </div>
     </main>

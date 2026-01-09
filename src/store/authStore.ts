@@ -13,7 +13,9 @@ interface User {
 
   age?: number;
   status?: number; // 성향 저장 0 ~ 3
+  profileImage?: string;
 }
+
 
 interface AuthState {
   token: string | null;

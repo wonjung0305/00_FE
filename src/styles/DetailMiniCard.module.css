@@ -15,7 +15,7 @@
   background: #fff; /* 카드 배경 */
   border: 1px solid var(--Color-Gray-07, #bfbfbf);
   border-radius: 16px 16px 49px 49px;
-  box-shadow: 0 0 10px 0 rgba(17, 17, 17, 0.15); /* 카드 떠있는 느낌 */
+  box-shadow: 0 0 10px 0 rgba(17, 17, 17, 0.15);
 }
 
 /* 카드 내부 패딩 */
@@ -24,7 +24,7 @@
 }
 
 /* =========================
->>>>>>> 6d47cc84cb76c2fb3d8cc07d74a370cb1eda8866
+
      상단 카테고리 배지
      ========================= */
 .badge {
@@ -36,7 +36,7 @@
   font-family: "Noto Sans KR";
   background: var(--color-card, #e7f0ff); /* 연한 파랑 배경 */
   color: #6990cf; /* 파랑 텍스트 */
-  font-weight: 800; /* 굵은 글씨 */
+  font-weight: 500;
   font-size: 14px;
   width: fit-content; /* 글자 길이만큼만 */
 }
@@ -48,7 +48,7 @@
 .title {
   margin-top: 14px;
   font-size: 16px;
-  font-weight: 800;
+  font-weight: 700;
   line-height: 1.35;
   letter-spacing: -0.02em;
   color: #111;

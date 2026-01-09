@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import { useMemo } from "react";
 import api from "@/lib/axios";
 import { useAuthStore } from "@/store/authStore";
+import Image from "next/image";
 
 import Header from "@/components/Header";
 import styles from "@/styles/TestResult.module.css";
@@ -43,7 +44,7 @@ const RESULT_MAP: Record<
     card2Title: "이런 점이 돋보여요!",
     card2Body:
       "거시적인 안목과 통찰력, 사회적 문제를 비판적으로 바라보고 대안을 제시하는 기획력이 뛰어납니다.",
-    imageSrc: "/result_A.svg",
+    imageSrc: "/profile_Reformer.svg",
   },
   B: {
     titleStrong: "안정중시형",
@@ -65,7 +66,7 @@ const RESULT_MAP: Record<
     card2Title: "이런 점이 돋보여요!",
     card2Body:
       "높은 책임감과 신중함, 리스크를 미리 예측하고 관리하는 꼼꼼한 분석 능력이 탁월합니다.",
-    imageSrc: "/result_B.svg",
+    imageSrc: "/profile_Stabilizer.svg",
   },
   C: {
     titleStrong: "실용중심형",
@@ -86,7 +87,7 @@ const RESULT_MAP: Record<
     card1Body: `"그래서 내 삶이 어떻게 나아지는가?"라는 질문에 명쾌한 답을 주는 정책을 지지합니다. 가성비가 좋고, 신청이 편리하며, 체감 효과가 즉각적인 실무 중심의 해결책을 선호하는 경향이 있습니다.`,
     card2Title: "이런 점이 돋보여요!",
     card2Body: `빠른 상황 판단력과 효율성을 극대화하는 실행력, 현장의 목소리를 정책에 반영하는 실천적 감각이 좋습니다.`,
-    imageSrc: "/result_C.svg",
+    imageSrc: "/profile_Pragmatist.svg",
   },
   D: {
     titleStrong: "가치지향형!",
@@ -108,7 +109,7 @@ const RESULT_MAP: Record<
     card1Body: `"이 정책이 누구를 배려하고 있는가?"를 핵심으로 봅니다. 약자를 보호하고 평등한 기회를 보장하는 내용에 깊이 공감하며, 다소 시간이 걸리더라도 사회적 합의와 도덕적 가치를 지켜내는 정책을 높게 평가합니다.`,
     card2Title: "이런 점이 돋보여요!",
     card2Body: `높은 공감 능력과 인권 감수성, 눈앞의 이익보다 공동체의 선을 우선시하는 단단한 신념을 갖추고 있습니다.`,
-    imageSrc: "/result_D.svg",
+    imageSrc: "/profile_Value-driven.svg",
   },
 };
 
@@ -241,13 +242,14 @@ const TestResultPage: NextPage = () => {
       <main className={styles.main}>
         <section className={styles.resultTop}>
           {/* 이미지*/}
-          <div className={styles.imageBox} />
-          {/* !!!!!!!!!!!!!!!!!!!!!!! 나중에 이미지 쓰려면:
-              <Image src={data.imageSrc!} ... />
-              !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-              <Image src={data.imageSrc!} alt="" width={228} height={228} />
-          */}
+          <div className={styles.imageBox}>
+            <Image
+              src={data.imageSrc!}
+              alt="프로필 이미지"
+              width={228}
+              height={228}
+            />
+          </div>
 
           {/* 제목 */}
           <h1 className={styles.resultTitle}>

@@ -2,13 +2,13 @@
    Hero 카드 전체 컨테이너
    ========================= */
 .card {
-  margin-top: 48px; /* 상단 여백 */
+  margin-top: 20px; /* 상단 여백 */
   width: 1200px; /* 카드 고정 폭 */
   min-height: 593px; /* 최소 높이 */
   background: #fff; /* 카드 배경 */
-  border: 1px solid #bfbfbf; /* 카드 테두리 */
+  border: 1px solid var(--Color-Gray-07, #BFBFBF);
   border-radius: 16px; /* 모서리 라운드 */
-  box-shadow: 0 0 10px rgba(17, 17, 17, 0.15); /* 떠 있는 카드 그림자 */
+  box-shadow: 0 0 10px 0 rgba(17, 17, 17, 0.15);
 }
 
 /* 카드 내부 패딩 */
@@ -31,12 +31,12 @@
   align-items: center;
   height: 30px;
   padding: 0 14px;
-  border-radius: 100px; /* 완전 둥근 pill */
-  border: 1.5px solid var(--Color-Gray-05, #767676);
+  border-radius: 100px; 
+  border: 2px solid var(--Color-Gray-05, #767676);
   background: #fff;
   font-size: 14px;
-  font-weight: 800;
-  color: #555;
+  font-weight: 600;
+  color: var(--Color-Gray-05, #767676);
 }
 
 /* 북마크 버튼 */
@@ -63,10 +63,11 @@
 .title {
   margin-top: 22px; /* 상단 영역과 간격 */
   font-size: 32px;
-  font-weight: 900;
+  font-weight: 700;
   line-height: 1.25;
   letter-spacing: -0.02em;
   color: #111;
+  font-family: "Noto Sans KR";
 }
 
 /* 제목 아래 구분선 */
@@ -122,7 +123,7 @@
 /* 메타 값 */
 .metaValue {
   font-size: 15px;
-  font-weight: 900;
+  font-weight: 600;
   color: #111;
 }
 
@@ -165,20 +166,21 @@
 /* 동의 인원 텍스트 */
 .peopleText {
   font-size: 18px;
-  font-weight: 800;
+  font-weight: 600;
   color: #6a4dff;
 }
 
 /* 퍼센트 텍스트 */
 .percent {
+  margin-right: 65px;
   font-size: 20px;
-  font-weight: 900;
+  font-weight: 600;
   color: #6a4dff;
 }
 
 /* 진행률 바 트랙 */
 .progressTrack {
-  width: 100%;
+  width: 650px;
   height: 12px;
   border-radius: 999px;
   background: #f0f0f0;
@@ -190,12 +192,12 @@
 .progressFill {
   height: 100%;
   border-radius: 999px;
-  background: #c9f23a; 
+  background: var(--Color-Brand-brand-accent-Base, #D6FF41); 
 }
 
 /* 바로가기 버튼 */
 .cta {
-  width: 282px;
+  width: 250px;
   height: 68px;
   border-radius: 16px;
   border: none;
@@ -204,6 +206,7 @@
   font-size: 24px;
   font-weight: 700;
   cursor: pointer;
+  font-family: "Noto Sans KR";
 }
 
 /* 버튼 hover 효과 */

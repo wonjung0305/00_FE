@@ -3,8 +3,8 @@
   }
   
   .heading {
-    font-size: 22px;
-    font-weight: 900;
+    font-size: 20px;
+    font-weight: 700;
     color: #111;
     margin-bottom: 10px;
   }
@@ -30,7 +30,7 @@
   /* 🔹 법안 제목 (보라색 링크 느낌) */
   .title {
     font-size: 15px;
-    font-weight: 900;
+    font-weight: 500;
     color: #6a5cff; /* mora 포인트 보라 */
     line-height: 1.6;
   }

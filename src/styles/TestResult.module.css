@@ -38,13 +38,6 @@
   margin-bottom: 64px;
 }
 
-/* 결과 이미지 자리 => Image 쓰고 나중에 지우기 !!!!!!!!!!!!11*/
-.imageBox {
-  width: 228px;
-  height: 228px;
-  background: #d9d9d9;
-}
-
 /* 결과 타이틀 */
 .resultTitle {
   margin: 0;

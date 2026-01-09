@@ -1,10 +1,11 @@
-// 회원탈퇴용 api
+import localApi from "@/lib/axios";
 
-import api from "@/lib/axios";
-
-export async function deleteUser(token?: string | null) {
-  return api.delete("/api/user/delete", {
+/** 회원탈퇴 */
+export async function deleteUser(): Promise<void> {
+  const r = await localApi.delete("/api/user/delete", {
     validateStatus: () => true,
-    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
   });
+
+  if (r.status === 401 || r.status === 402) throw { status: r.status };
+  if (r.status < 200 || r.status >= 300) throw r;
 }

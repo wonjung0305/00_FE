@@ -1,9 +1,11 @@
 .card {
-  margin-top: 72px;
+  margin-top: 3px;
+  margin-bottom: 25;
   background: transparent;
-  border: none;
+  border: 1px solid var(--Color-Gray-07, #BFBFBF);
   box-shadow: none;
-  padding: 0;
+  border-radius: 16px;
+  padding: 24px;
 }
 
 .head {
@@ -26,9 +28,9 @@
 }
 
 .body {
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1.7;
-  font-weight: 600;
-  color: #6a3df6;
+  font-weight: 500;
+  color: black;
   font-family: "Noto Sans KR";
 }

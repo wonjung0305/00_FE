@@ -3,8 +3,8 @@
 }
 
 .heading {
-  font-size: 22px;
-  font-weight: 900;
+  font-size: 20px;
+  font-weight: 700;
   color: #111;
 }
 
@@ -16,13 +16,13 @@
 
 .question {
   font-size: 15px;
-  font-weight: 900;
+  font-weight: 500;
   color: #6a5cff; /* 보라색 (mora 포인트 컬러) */
   line-height: 1.6;
 }
 
 .body {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 500;
   color: #111; /* 검은색 */
   line-height: 1.8;

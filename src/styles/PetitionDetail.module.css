@@ -54,5 +54,37 @@
     height: 900px;
   }
   
-
+  .lowerBg {
+    width: 100%;
+    background: #f5f6f8;
+    margin-top: 0;
+    padding: 28px 0 88px;
+    border-top: 1px solid #e5e7eb;
+  }
   
+  .likeArea {
+    display: flex;
+    justify-content: center;
+    padding-top: 0;
+  }
+  
+  .commentsArea {
+    margin-top: 28px;
+  }
+  
+
+  .miniSticky {
+    position: sticky;
+    top: 120px;
+  }
+  
+  .commentsPagerSpace {
+    height: 140px;
+  }
+
+  /* DetailMiniCard sticky 위치 */
+.miniSticky {
+  position: sticky;
+  top: 120px;
+}
+

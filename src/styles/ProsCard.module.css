@@ -16,10 +16,10 @@
     height: 34px;
     padding: 0 14px;
     border-radius: 10px;
-    background: #79B495;
+    background: #00A908;
     color: #fff;
     font-size: 16px;
-    font-weight: 900;
+    font-weight: 700;
     font-family: "Noto Sans KR";
     flex: 0 0 auto;
   }
@@ -27,7 +27,7 @@
   .rule {
     height: 4px;
     flex: 1;
-    background: #7db59a;
+    background: #00A908;
     border-radius: 999px;
   }
   
@@ -39,8 +39,8 @@
   
   .itemTitle {
     font-size: 18px;
-    font-weight: 900;
-    color: #79B495;
+    font-weight: 700;
+    color: #00A908;
     font-family: "Noto Sans KR";
     margin-bottom: 12px;
   }
@@ -49,7 +49,7 @@
     margin: 0;
     font-size: 14px;
     line-height: 1.9;
-    font-weight: 600;
+    font-weight: 700;
     color: #111;
     font-family: "Noto Sans KR";
   }
