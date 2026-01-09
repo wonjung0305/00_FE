@@ -2,8 +2,6 @@
 <a id="readme-top"></a>
 <!-- Header banner -->
 
----
-
 <p align="center">
     <img src="https://raw.githubusercontent.com/Club-PARD/00_FE/refs/heads/main/public/logo.svg" width="45%"/>
 
