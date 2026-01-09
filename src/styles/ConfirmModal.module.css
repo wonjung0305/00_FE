@@ -1,0 +1,58 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.modal {
+  width: 360px;
+  max-width: calc(100% - 48px);
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+.title {
+  margin: 0;
+
+  color: #F60909;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.message {
+  margin: 16px 0 24px;
+  color: #111;
+  
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.cancelBtn, .confirmBtn {
+  height: 40px;
+  padding: 0 14px;
+  border-radius: 10px;
+  border: 1px solid #bfbfbf;
+  background: #fff;
+  cursor: pointer;
+}
+
+.confirmBtn {
+  border: none;
+  background: #6A3DF6; 
+  color: #fff;
+}
+
+.confirmBtn:hover{
+  background-color: #5f37dd;
+  color: #f5f5f5;
+}

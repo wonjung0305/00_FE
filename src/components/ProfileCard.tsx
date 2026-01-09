@@ -8,6 +8,9 @@ import api from "@/lib/axios";
 import EditModal from "@/components/EditModal";
 import { useAuthStore } from "@/store/authStore";
 
+import ConfirmModal from "@/components/ConfirmModal";
+import { deleteUser } from "@/lib/userApi";
+
 const statusLabel = (status?: number) => {
   switch (status) {
     case 0:
@@ -95,6 +98,41 @@ export default function ProfileCard() {
     router.push("/");
   };
 
+  // 회원탈퇴용
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  //회원 탈퇴 로직
+  const onConfirmDelete = async () => {
+    if (deleting) return;
+
+    setDeleting(true);
+    try {
+      const r = await deleteUser(token);
+
+      if (r.status >= 200 && r.status < 300) {
+        // 모달 닫고
+        setIsDeleteOpen(false);
+
+        // 로컬 로그인 상태 초기화 (로그아웃)
+        logout();
+
+        // 홈으로
+        router.replace("/");
+        return;
+      }
+
+      // 실패 처리
+      console.error("회원탈퇴 실패:", r.status, r.data);
+      alert("회원탈퇴에 실패했습니다. 잠시 후 다시 시도해주세요.");
+    } catch (e) {
+      console.error(e);
+      alert("회원탈퇴 중 오류가 발생했습니다.");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   return (
     <>
       <section className={styles.card}>
@@ -178,6 +216,7 @@ export default function ProfileCard() {
                 className={`${styles.menuItem} ${styles.danger}`}
                 onClick={() => {
                   setMenuOpen(false);
+                  setIsDeleteOpen(true);
                 }}
               >
                 <Image src="/secession.svg" alt="" width={16} height={16} />
@@ -203,6 +242,16 @@ export default function ProfileCard() {
           if (!ok) throw new Error("닉네임 수정 실패");
           setIsEditOpen(false);
         }}
+      />
+      <ConfirmModal
+        isOpen={isDeleteOpen}
+        title="회원탈퇴"
+        message="정말 탈퇴하시겠습니까?"
+        confirmText="예"
+        cancelText="아니요"
+        loading={deleting}
+        onClose={() => setIsDeleteOpen(false)}
+        onConfirm={onConfirmDelete}
       />
     </>
   );

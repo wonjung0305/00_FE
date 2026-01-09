@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import styles from "@/styles/DetailHeroCard.module.css";
+import { toDateOnly, isClosedByEndDate, ddayByEndDate } from "@/lib/dateRule";
 
 type MetaItem = {
   iconSrc: string;
@@ -47,24 +48,6 @@ function getStringValue(v: React.ReactNode) {
   return typeof v === "string" ? v : null;
 }
 
-function parseDate(dateStr: string) {
-  const normalized = dateStr.trim().replace(/\./g, "-");
-  return new Date(normalized + "T00:00:00");
-}
-
-function calcDday(endDate: string) {
-  const end = parseDate(endDate);
-  const today = new Date();
-
-  if (isNaN(end.getTime())) return null;
-
-  end.setHours(0, 0, 0, 0);
-  today.setHours(0, 0, 0, 0);
-
-  const diffMs = end.getTime() - today.getTime();
-  return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-}
-
 export default function DetailHeroCard({
   badge,
   title,
@@ -99,11 +82,17 @@ export default function DetailHeroCard({
     const parts = periodStr.split("~").map((s) => s.trim());
     if (parts.length < 2) return statusPill;
 
-    const endDate = parts[1];
-    const dday = calcDday(endDate);
+    const endDateStr = parts[1]; 
 
-    if (dday === null) return statusPill;
-    return dday >= 0 ? `D-${dday}` : "마감";
+    // "YYYY.MM.DD" -> "YYYY-MM-DD"로 정규화
+    const end = toDateOnly(endDateStr.replace(/\./g, "-"));
+    if (!end) return statusPill;
+
+    const closed = isClosedByEndDate(end);
+    const dday = ddayByEndDate(end);
+
+    // 정책: 종료일 당일 마감
+    return closed || dday <= 0 ? "마감" : `D-${dday}`;
   }, [metaMap, statusPill]);
 
   const orderedMeta = useMemo(() => {
@@ -247,7 +236,10 @@ export default function DetailHeroCard({
             </div>
 
             <div className={styles.progressTrack}>
-              <div className={styles.progressFill} style={{ width: `${value}%` }} />
+              <div
+                className={styles.progressFill}
+                style={{ width: `${value}%` }}
+              />
             </div>
           </div>
 

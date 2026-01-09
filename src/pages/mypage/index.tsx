@@ -51,10 +51,15 @@ function toRow(it: ScrapItem): Row {
   const period = `~${end}`;
 
   const d = diffDays(it.voteEndDate);
-  const isClosed = d !== null ? d < 0 : true;
+  const isClosed = d !== null ? d <= 0 : true;
 
+  const isUrgent = d !== null && d >= 1 && d <= 7;
   const ddayLabel = isClosed ? "마감" : `D-${d}`;
-  const ddayTone: "gray" | "red" = isClosed ? "gray" : "red";
+  const ddayTone: "gray" | "red" = isClosed
+    ? "gray"
+    : isUrgent
+    ? "red"
+    : "gray";
 
   const status = it.result?.trim() ? it.result : statusLabel(it.status);
 

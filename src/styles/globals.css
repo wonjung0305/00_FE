@@ -1,18 +1,19 @@
 /* globals.css */
+/* 기본 여백 제거 */
+html,
+body {
+  margin: 0;
+  padding: 0;
+
+  background: #f5f5f5 !important;
+  min-height: 100%;
+}
 
 /* box-sizing 통일 */
 *,
 *::before,
 *::after {
   box-sizing: border-box;
-}
-
-/* 기본 여백 제거 */
-html, body {
-  margin: 0;
-  padding: 0;
-
-  background: #F5F5F5 !important;
 }
 
 /* 기본 폰트만 지정 */
@@ -27,31 +28,33 @@ a {
 }
 
 /* 폼 요소에서 폰트 상속받도록 */
-button, input, textarea, select {
+button,
+input,
+textarea,
+select {
   font-family: inherit;
 }
 
 body {
-  font-family: 'Noto Sans KR', sans-serif;
+  font-family: "Noto Sans KR", sans-serif;
   color: #111;
 }
 
-
 .font-gmarket {
-  font-family: 'GmarketSans', sans-serif;
+  font-family: "GmarketSans", sans-serif;
 }
 
 /* src/styles/globals.css */
 @font-face {
-  font-family: 'GmarketSans';
-  src: url('/fonts/GmarketSansTTFMedium.ttf') format('truetype');
+  font-family: "GmarketSans";
+  src: url("/fonts/GmarketSansTTFMedium.ttf") format("truetype");
   font-weight: 500;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'GmarketSans';
-  src: url('/fonts/GmarketSansTTFBold.ttf') format('truetype');
+  font-family: "GmarketSans";
+  src: url("/fonts/GmarketSansTTFBold.ttf") format("truetype");
   font-weight: 700;
   font-style: normal;
 }

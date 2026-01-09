@@ -6,6 +6,7 @@ import styles from "@/styles/Listcard.module.css";
 
 import { useAuthStore } from "@/store/authStore";
 import { useScrapStore } from "@/store/scrapStore";
+import { toDateOnly, isClosedByEndDate, ddayByEndDate } from "@/lib/dateRule";
 
 // 데이터 타입 정의
 export type CongressCardItem = {
@@ -44,27 +45,6 @@ function formatNumber(n: number) {
   return n.toLocaleString("ko-KR");
 }
 
-// 날짜 파싱 보조=> "YYYY.MM.DD", "YYYY-MM-DD" 형태를 일정하게 수정하는 것
-function parseDate(dateStr: string) {
-  const normalized = dateStr.trim().replace(/\./g, "-"); // . -> -
-  const d = new Date(normalized + "T00:00:00");
-  return d;
-}
-
-// D-Day 계산
-function calcDday(endDate: string) {
-  const end = parseDate(endDate);
-  const today = new Date();
-
-  if (isNaN(end.getTime())) return null;
-
-  end.setHours(0, 0, 0, 0);
-  today.setHours(0, 0, 0, 0);
-
-  const diffMs = end.getTime() - today.getTime();
-  return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-}
-
 type Props = {
   item: CongressCardItem;
   href?: string;
@@ -89,9 +69,13 @@ export default function CongressCard({
     : CATEGORY_STYLES[categoryKey] ?? { bg: "#f1f1f1", text: "#767676" };
   const formattedCategory = item.category.replace(/\//g, " · ");
 
-  // D-Day 계산 및 스타일
-  const dday = calcDday(item.endDate);
-  const isUrgent = dday !== null && dday >= 0 && dday <= 7;
+  // 종료일 당일(0)은 마감으로 처리
+  const end = toDateOnly(item.endDate.replace(/\./g, "-")); // item.endDate가 "YYYY.MM.DD"라서 -로 맞춤
+  const closed = end ? isClosedByEndDate(end) : false;
+  const dday = end ? ddayByEndDate(end) : null;
+
+  // 긴급은 "마감 전 1~7일"만 빨강 (0은 마감이므로 제외)
+  const isUrgent = dday !== null && dday >= 1 && dday <= 7;
 
   // 링크 주소
   const detailHref = href ?? `/petition/${item.id}`;
@@ -118,7 +102,7 @@ export default function CongressCard({
         <span
           className={`${styles.ddayBadge} ${isUrgent ? styles.ddayRed : ""}`}
         >
-          {dday === null ? "-" : dday >= 0 ? `D-${dday}` : `마감`}
+          {!end ? "-" : closed ? "마감" : dday === null ? "-" : `D-${dday}`}
         </span>
         <button
           className={styles.bookmarkBtn}

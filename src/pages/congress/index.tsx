@@ -10,6 +10,8 @@ import LoginToast from "@/components/LoginToast";
 import { useScrapStore } from "@/store/scrapStore";
 import { useAuthStore } from "@/store/authStore";
 
+import { endDateByRule, formatDot } from "@/lib/dateRule";
+
 import ListCard, { CongressCardItem } from "@/components/ListCard";
 
 import Pagination from "@/components/Pagination";
@@ -42,23 +44,6 @@ const CATEGORIES = [
   "",
 ];
 
-// 날짜 정렬을 위해서 (Date로 변환)
-function parseDate(dateStr: string) {
-  const normalized = dateStr.trim().replace(/\./g, "-");
-  return new Date(normalized + "T00:00:00");
-}
-
-// 진행 중인가 (endDate가 오늘 이후면 진행중 (true로))
-function isOngoing(endDate: string) {
-  const end = parseDate(endDate);
-  if (isNaN(end.getTime())) return false;
-
-  const today = new Date();
-  end.setHours(0, 0, 0, 0);
-  today.setHours(0, 0, 0, 0);
-
-  return end.getTime() >= today.getTime(); // 오늘 포함이면 진행중
-}
 
 // 한 페이지에 보이는 카드 수
 const ITEMS_PER_PAGE = 24; // 한 페이지 카드 수 24
@@ -161,7 +146,6 @@ export default function CongressPage() {
 
   // 적용하기 버튼 (임시 데이터를 진짜 데이터로 저장)
   const handleApplyCategory = () => {
-    console.log("최종 적용된 카테고리:", tempCategories);
     setSelectedCategories(tempCategories); // 저장
     setIsCategoryOpen(false); // 닫기
   };
@@ -178,6 +162,8 @@ export default function CongressPage() {
   const mapToCardItem = (p: PetitionResponse): CongressCardItem => {
     const raw = p.category ?? "";
 
+    const computedEnd = endDateByRule(p.voteStartDate);
+
     const joined = Array.isArray(raw)
       ? raw.join(", ") // ["환경","청년"] -> "환경, 청년"
       : String(raw); // "재난, 안전, 환경" -> 그대로
@@ -188,15 +174,14 @@ export default function CongressPage() {
       category: joined.replace(/,\s*/g, "/"), // ListCard가 "/" 표기 쓰니까 통일
       allows: p.allows ?? 0,
       startDate: (p.voteStartDate ?? "").split("T")[0].replace(/-/g, "."),
-      endDate: (p.voteEndDate ?? "").split("T")[0].replace(/-/g, "."),
+      endDate: computedEnd
+        ? formatDot(computedEnd)
+        : (p.voteEndDate ?? "").split("T")[0].replace(/-/g, "."),
     };
   };
 
-  const keyword = searchKeyword.trim();
-
   // 서버 호출 함수
   const fetchCongress = async () => {
-
     setLoading(true);
 
     try {
@@ -210,13 +195,12 @@ export default function CongressPage() {
 
       const data = await getCongressPetitions({
         how,
-        // status: statusForServer,
+        status: statusForServer,
         limit: ITEMS_PER_PAGE,
         page: currentPage,
         category: categoryForServer,
         keyWord: keyword ? keyword : undefined,
       });
-
 
       // 서버 데이터 변환
       const mapped = data.map(mapToCardItem);
@@ -440,7 +424,6 @@ export default function CongressPage() {
                 value={inputText}
                 onChange={(e) => {
                   setInputText(e.target.value);
-                  console.log("[input onChange]", e.target.value);
                 }}
                 onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => {
                   const composing =

@@ -4,8 +4,10 @@
 import Link from "next/link";
 import Image from "next/image";
 import styles from "@/styles/PetitionCard.module.css";
+
 import { useAuthStore } from "@/store/authStore";
 import { useScrapStore } from "@/store/scrapStore";
+import { toDateOnly, isClosedByEndDate, ddayByEndDate } from "@/lib/dateRule";
 
 // 서버와 주고받을 데이터 타입
 export type PetitionCardItem = {
@@ -47,18 +49,6 @@ function formatNumber(n: number) {
   return n.toLocaleString("ko-KR");
 }
 
-// D-day 계산
-function calcDday(endDate: string) {
-  const end = new Date(endDate + "T00:00:00");
-  const today = new Date();
-
-  end.setHours(0, 0, 0, 0);
-  today.setHours(0, 0, 0, 0);
-
-  const diffMs = end.getTime() - today.getTime();
-  return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-}
-
 // Props
 type PetitionCardProps = {
   item: PetitionCardItem;
@@ -85,8 +75,11 @@ export default function PetitionCard({
     .replace(/\//g, " · ")
     .replace(/,\s*/g, " · ");
 
-  const dday = calcDday(item.endDate);
-  const isUrgent = dday >= 0 && dday <= 7;
+  const end = toDateOnly(item.endDate); // PetitionCard는 endDate가 "YYYY-MM-DD"라고 써있음
+  const closed = end ? isClosedByEndDate(end) : false;
+  const dday = end ? ddayByEndDate(end) : null;
+
+  const isUrgent = dday !== null && dday >= 1 && dday <= 7;
   const badgeColorClass = isUrgent ? styles.ddayRed : styles.ddayGray;
 
   // 상세 페이지 경로 (단수 petition!)
@@ -112,7 +105,7 @@ export default function PetitionCard({
       <div className={styles.whiteCard}>
         <div className={styles.headerRow}>
           <span className={`${styles.ddayBadge} ${badgeColorClass}`}>
-            {dday >= 0 ? `D-${dday}` : "마감"}
+            {!end ? "-" : closed ? "마감" : dday === null ? "-" : `D-${dday}`}
           </span>
 
           <button
