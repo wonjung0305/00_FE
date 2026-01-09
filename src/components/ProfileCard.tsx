@@ -125,9 +125,13 @@ export default function ProfileCard() {
       // 실패 처리
       console.error("회원탈퇴 실패:", r.status, r.data);
       alert("회원탈퇴에 실패했습니다. 잠시 후 다시 시도해주세요.");
+      console.log("탈퇴 응답:", r.status, r.data, r.headers);
+      setIsDeleteOpen(false);
     } catch (e) {
       console.error(e);
       alert("회원탈퇴 중 오류가 발생했습니다.");
+      
+      setIsDeleteOpen(false);
     } finally {
       setDeleting(false);
     }
