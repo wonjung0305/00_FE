@@ -2,7 +2,7 @@
    댓글 전체 영역
 ========================= */
 .wrap {
-  margin-top: 36px; /* 댓글 섹션 위 여백 */
+  margin-top: 36px;
 }
 
 /* =========================
@@ -24,8 +24,6 @@
   gap: 16px;
   margin-bottom: 18px;
 }
-
-
 
 /* 입력창 래퍼 */
 .inputCol {
@@ -50,12 +48,22 @@
   font-weight: 700;
 }
 
-/* 입력창 하단 보라색 밑줄 */
+/* =========================
+   댓글 입력 밑줄
+========================= */
+
+/* 기본 상태: 회색 */
 .underline {
   margin-top: 8px;
   height: 2px;
-  background: #6a5cff;
   width: 100%;
+  background: #e0e0e0;
+  transition: background 0.2s ease;
+}
+
+/* input에 포커스가 들어오면 보라색 */
+.input:focus + .underline {
+  background: #6a5cff;
 }
 
 /* =========================
@@ -65,13 +73,13 @@
   margin-top: 40px;
   display: flex;
   flex-direction: column;
-  gap: 18px; /* 댓글 간 간격 */
+  gap: 18px;
 }
 
 /* 개별 댓글 */
 .item {
   display: flex;
-  gap: 15px;
+  gap: 20px;
   align-items: flex-start;
 }
 
@@ -91,7 +99,7 @@
 
 /* 댓글 본문 */
 .body {
-  margin-top: -4px; 
+  margin-top: -4px;
   font-size: 14px;
   color: #222;
   line-height: 1.6;
@@ -140,15 +148,22 @@
 /* 메뉴 안 버튼 (삭제) */
 .menuItem {
   width: 100%;
+  min-width: 72px;
+
   padding: 10px 14px;
   border: 0;
   background: #fff;
   cursor: pointer;
+
   font-size: 13px;
   font-weight: 900;
   color: #111;
-  text-align: left;
+  text-align: center;
+
+  white-space: nowrap;
+  line-height: normal;
 }
+
 
 .menuItem:hover {
   background: #f5f5f5;
@@ -161,8 +176,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 34px; /* 숫자/화살표 사이 간격 */
-  margin-top: 90px; /* 댓글 목록과의 거리 */
+  gap: 34px;
+  margin-top: 90px;
 }
 
 /* 좌 / 우 화살표 버튼 */
@@ -170,11 +185,9 @@
   border: 0;
   background: transparent;
   cursor: pointer;
-
   font-size: 28px;
   line-height: 1;
   color: var(--Color-Gray-05, #767676);
-
   padding: 4px 6px;
 }
 
@@ -189,12 +202,10 @@
   border: 0;
   background: transparent;
   cursor: pointer;
-
   font-family: "Noto Sans KR";
   font-size: 16px;
   font-style: normal;
   font-weight: 700;
-
   padding: 4px 6px;
 }
 

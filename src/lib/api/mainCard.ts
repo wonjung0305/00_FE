@@ -6,7 +6,7 @@ export interface PetitionResponse {
   id: number;
   title: string;
   type: number; // 0: 청원24, 1: 국민동의청원
-  status: number; // 0,1,2 (진행, 심사, 종료)
+  status: 0 | 1; // 0,1,(진행, 심사, 종료)
   category: string;
   subtitle: string;
   voteStartDate: string;
@@ -16,7 +16,7 @@ export interface PetitionResponse {
 
 export interface PetitionQuery {
   type?: number;
-  status?: number;
+  status?: 0 | 1;
   limit?: number;
   page?: number;
   how: number; // 0(동의자/인기), 1(최신)

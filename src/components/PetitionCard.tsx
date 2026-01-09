@@ -7,7 +7,12 @@ import styles from "@/styles/PetitionCard.module.css";
 
 import { useAuthStore } from "@/store/authStore";
 import { useScrapStore } from "@/store/scrapStore";
-import { toDateOnly, isClosedByEndDate, ddayByEndDate } from "@/lib/dateRule";
+import {
+  toDateOnly,
+  isClosedByEndDate,
+  ddayByEndDate,
+  isEarlyClosed,
+} from "@/lib/dateRule";
 
 // 서버와 주고받을 데이터 타입
 export type PetitionCardItem = {
@@ -78,6 +83,7 @@ export default function PetitionCard({
   const end = toDateOnly(item.endDate); // PetitionCard는 endDate가 "YYYY-MM-DD"라고 써있음
   const closed = end ? isClosedByEndDate(end) : false;
   const dday = end ? ddayByEndDate(end) : null;
+  const earlyClosed = isEarlyClosed(item.status, item.startDate);
 
   const isUrgent = dday !== null && dday >= 1 && dday <= 7;
   const badgeColorClass = isUrgent ? styles.ddayRed : styles.ddayGray;
@@ -97,6 +103,16 @@ export default function PetitionCard({
     Number.isFinite(petId) ? !!s.loadingById[petId] : false
   );
 
+  const badgeText = !end
+    ? "-"
+    : earlyClosed
+    ? "조기마감"
+    : closed
+    ? "마감"
+    : dday === null
+    ? "-"
+    : `D-${dday}`;
+
   const toggleScrap = useScrapStore((s) => s.toggleScrap);
 
   return (
@@ -104,8 +120,12 @@ export default function PetitionCard({
       {/* 상단 흰 카드 영역 (클릭 이동 x) */}
       <div className={styles.whiteCard}>
         <div className={styles.headerRow}>
-          <span className={`${styles.ddayBadge} ${badgeColorClass}`}>
-            {!end ? "-" : closed ? "마감" : dday === null ? "-" : `D-${dday}`}
+          <span
+            className={`${styles.ddayBadge} ${badgeColorClass} ${
+              badgeText === "조기마감" ? styles.ddayWide : ""
+            }`}
+          >
+            {badgeText}
           </span>
 
           <button

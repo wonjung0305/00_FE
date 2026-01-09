@@ -1,39 +1,57 @@
 .footer {
-    width: 100%;
-    background: #ffffff;
-    padding-top: 96px;
-    padding-bottom: 40px;
-    text-align: center;
-  }
+  width: 100%;
+  height: 160px;
+  background-color: #f5f5f5;
+  position: relative;
+  overflow: hidden;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  font-family: "Noto Sans KR";
+  font-size: 12px;
+  font-weight: 500;
+  color: #767676;
   
-  .center {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-  }
-  
-  .links {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 13px;
-    color: #8f8f8f;
-    font-weight: 400;
-  }
-  
-  .divider {
-    color: #cfcfcf;
-  }
-  
-  .copy {
-    font-size: 12px;
-    color: #9a9a9a;
-  }
-  
-  .logoWrap {
-    margin-top: 64px;
-    display: flex;
-    justify-content: center;
-  }
-  
+  gap: 6px;
+}
+
+/* 이용약관 부분*/
+.links {
+  margin-bottom: 12px;
+
+  text-decoration: none;
+}
+
+.links a:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.separator {
+  margin: 0 8px; /* | 기준 좌우 gap = 8px */
+}
+
+/* 저작권 부분 */
+.copyright {
+  font-weight: 500;
+}
+
+/* 로고 래퍼 */
+.logoWrapper {
+  position: absolute;
+  bottom: -20px;
+
+  width: 430px;
+  height: 105px;
+
+
+  overflow: hidden;
+}
+
+/* more만 투명하게 적용*/
+.transparent {
+  background: transparent !important;
+  border-top: none;
+}

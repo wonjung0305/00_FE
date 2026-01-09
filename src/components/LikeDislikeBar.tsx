@@ -8,10 +8,41 @@ type Props = {
   bad: number;
   isAuthed: boolean;
   onChangeCounts?: (nextGood: number, nextBad: number) => void;
-
-  // 비로그인 클릭 시, 부모에서 만든 토스트를 띄우기 위한 콜백
   onRequireLoginToast?: () => void;
+  onRequestRefresh?: () => void;
 };
+
+type MyLike = null | 1 | -1;
+
+function parseMyLike(data: any): MyLike {
+  const v = Number(data?.likes ?? data);
+  if (v === 1 || v === -1) return v as 1 | -1;
+  return null;
+}
+
+function cacheKey(petitionId: number) {
+  return `mora:likes:my:${petitionId}`;
+}
+
+function readCache(petitionId: number): MyLike {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(cacheKey(petitionId));
+    const v = Number(raw);
+    if (v === 1 || v === -1) return v as 1 | -1;
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+function writeCache(petitionId: number, v: MyLike) {
+  if (typeof window === "undefined") return;
+  try {
+    if (v === 1 || v === -1) window.localStorage.setItem(cacheKey(petitionId), String(v));
+    else window.localStorage.removeItem(cacheKey(petitionId));
+  } catch {}
+}
 
 export default function LikeDislikeBar({
   petitionId,
@@ -20,9 +51,15 @@ export default function LikeDislikeBar({
   isAuthed,
   onChangeCounts,
   onRequireLoginToast,
+  onRequestRefresh,
 }: Props) {
   const [loading, setLoading] = useState(false);
-  const [my, setMy] = useState<null | 1 | -1>(null);
+  const [myLoading, setMyLoading] = useState(false);
+
+  const [my, setMy] = useState<MyLike>(() => {
+    if (!petitionId) return null;
+    return readCache(petitionId);
+  });
 
   const goodCount = Number.isFinite(Number(good)) ? Number(good) : 0;
   const badCount = Number.isFinite(Number(bad)) ? Math.abs(Number(bad)) : 0;
@@ -32,28 +69,35 @@ export default function LikeDislikeBar({
 
   useEffect(() => {
     if (!petitionId) return;
+    setMy(readCache(petitionId));
+  }, [petitionId]);
+
+  useEffect(() => {
+    if (!petitionId) return;
 
     let alive = true;
+    setMyLoading(true);
 
     api
       .get(`/api/petition/likes/${petitionId}`, { validateStatus: () => true })
       .then((r) => {
         if (!alive) return;
 
-        if (r.status === 401) {
+        if (r.status === 401 || r.status === 402) {
           setMy(null);
+          writeCache(petitionId, null);
           return;
         }
 
-        const d = r.data;
-        const v = Number(d?.likes ?? d);
-
-        if (v === 1 || v === -1) setMy(v as 1 | -1);
-        else setMy(null);
+        const serverMy = parseMyLike(r.data);
+        setMy(readCache(petitionId)); // 캐시 유지 
       })
       .catch(() => {
         if (!alive) return;
-        setMy(null);
+      })
+      .finally(() => {
+        if (!alive) return;
+        setMyLoading(false);
       });
 
     return () => {
@@ -61,8 +105,7 @@ export default function LikeDislikeBar({
     };
   }, [petitionId]);
 
-  
-  const applyLocalCounts = (prevMy: null | 1 | -1, nextMy: null | 1 | -1) => {
+  const applyLocalCounts = (prevMy: MyLike, nextMy: MyLike) => {
     let g = goodCount;
     let b = badCount;
 
@@ -81,74 +124,68 @@ export default function LikeDislikeBar({
       return;
     }
 
-    if (loading) return;
+    if (loading || myLoading) return;
     setLoading(true);
 
     const prevMy = my;
-    const nextMy = prevMy === likes ? null : likes;
+    const nextMy: MyLike = prevMy === likes ? null : likes;
 
     applyLocalCounts(prevMy, nextMy);
     setMy(nextMy);
+    writeCache(petitionId, nextMy);
 
     try {
-      const sendLikes = nextMy === null ? 0 : nextMy;
-
       const r = await api.post(
         `/api/petition/likes`,
-        { id: petitionId, likes: sendLikes },
+        { id: petitionId, likes },
         { validateStatus: () => true }
       );
 
-      if (r.status === 401) {
-
+      if (r.status === 401 || r.status === 402) {
         applyLocalCounts(nextMy, prevMy);
         setMy(prevMy);
-
-        if (confirm("로그인이 필요한 서비스입니다.\n로그인 하시겠습니까?")) {
-          window.location.href = "/login";
-        }
+        writeCache(petitionId, prevMy);
+        onRequireLoginToast?.();
         return;
       }
 
       if (r.status >= 400) {
         applyLocalCounts(nextMy, prevMy);
         setMy(prevMy);
+        writeCache(petitionId, prevMy);
         alert("요청 처리에 실패했습니다.");
         return;
       }
-    } catch (error: any) {
+
+      onRequestRefresh?.();
+    } catch {
       applyLocalCounts(nextMy, prevMy);
       setMy(prevMy);
-
-      if (error.response?.status === 401) {
-        if (confirm("로그인이 필요한 서비스입니다.\n로그인 하시겠습니까?")) {
-          window.location.href = "/login";
-        }
-      } else {
-        alert("요청 처리에 실패했습니다.");
-      }
+      writeCache(petitionId, prevMy);
+      alert("요청 처리에 실패했습니다.");
     } finally {
       setLoading(false);
     }
   };
 
+  const disabled = loading || myLoading;
+
   return (
     <div className={styles.wrap}>
       <div className={styles.bar}>
-      <button
-        type="button"
-        className={`
-          ${styles.btn}
-          ${styles.likeBtn}
-          ${my === 1 ? styles.activeGood : ""}
-        `}
-        onClick={() => post(1)}
-        disabled={loading}
-      >
-        <span className={styles.count}>{goodCount}</span>
-        <img src={likeIcon} alt="좋아요" className={styles.iconImg} />
-      </button>
-
+        <button
+          type="button"
+          className={`
+            ${styles.btn}
+            ${styles.likeBtn}
+            ${my === 1 ? styles.activeGood : ""}
+          `}
+          onClick={() => post(1)}
+          disabled={disabled}
+        >
+          <span className={styles.count}>{goodCount}</span>
+          <img src={likeIcon} alt="좋아요" className={styles.iconImg} />
+        </button>
 
         <div className={styles.divider} />
 
@@ -160,12 +197,11 @@ export default function LikeDislikeBar({
             ${my === -1 ? styles.activeBad : ""}
           `}
           onClick={() => post(-1)}
-          disabled={loading}
+          disabled={disabled}
         >
           <img src={dislikeIcon} alt="싫어요" className={styles.iconImg} />
           <span className={styles.count}>{badCount}</span>
         </button>
-
       </div>
     </div>
   );

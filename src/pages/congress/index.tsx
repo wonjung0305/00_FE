@@ -5,6 +5,8 @@ import { useRouter } from "next/router";
 import type { KeyboardEvent } from "react";
 import styles from "@/styles/Congress.module.css";
 
+import Footer from "@/components/Footer";
+
 import { useLoginToast } from "@/hooks/useLoginToast";
 import LoginToast from "@/components/LoginToast";
 import { useScrapStore } from "@/store/scrapStore";
@@ -43,7 +45,6 @@ const CATEGORIES = [
   "저출산/고령화/아동/청소년/가족",
   "",
 ];
-
 
 // 한 페이지에 보이는 카드 수
 const ITEMS_PER_PAGE = 24; // 한 페이지 카드 수 24
@@ -177,6 +178,7 @@ export default function CongressPage() {
       endDate: computedEnd
         ? formatDot(computedEnd)
         : (p.voteEndDate ?? "").split("T")[0].replace(/-/g, "."),
+      status: p.status,
     };
   };
 
@@ -464,6 +466,8 @@ export default function CongressPage() {
           onPageChange={setCurrentPage}
         />
       </main>
+
+      <Footer />
     </>
   );
 }

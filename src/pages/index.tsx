@@ -7,6 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import Banner from "@/components/Banner";
 import PetitionCard, { PetitionCardItem } from "@/components/PetitionCard";
 
@@ -185,6 +186,7 @@ export default function Home() {
             </div>
           </section>
         </main>
+        <Footer />
       </div>
     </>
   );

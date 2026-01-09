@@ -6,7 +6,12 @@ import styles from "@/styles/Listcard.module.css";
 
 import { useAuthStore } from "@/store/authStore";
 import { useScrapStore } from "@/store/scrapStore";
-import { toDateOnly, isClosedByEndDate, ddayByEndDate } from "@/lib/dateRule";
+import {
+  toDateOnly,
+  isClosedByEndDate,
+  ddayByEndDate,
+  isEarlyClosed,
+} from "@/lib/dateRule";
 
 // 데이터 타입 정의
 export type CongressCardItem = {
@@ -16,6 +21,7 @@ export type CongressCardItem = {
   allows: number;
   startDate: string;
   endDate: string;
+  status?: 0 | 1;
 };
 
 // 카테고리별 색상 매핑
@@ -77,6 +83,9 @@ export default function CongressCard({
   // 긴급은 "마감 전 1~7일"만 빨강 (0은 마감이므로 제외)
   const isUrgent = dday !== null && dday >= 1 && dday <= 7;
 
+  const startIso = item.startDate.replace(/\./g, "-"); // 점 -> 하이픈
+  const earlyClosed = isEarlyClosed(item.status, startIso);
+
   // 링크 주소
   const detailHref = href ?? `/petition/${item.id}`;
 
@@ -95,14 +104,26 @@ export default function CongressCard({
     Number.isFinite(petId) ? !!s.loadingById[petId] : false
   );
 
+  const badgeText = !end
+    ? "-"
+    : earlyClosed
+    ? "조기마감"
+    : closed
+    ? "마감"
+    : dday === null
+    ? "-"
+    : `D-${dday}`;
+
   return (
     <article className={styles.cardWrapper}>
       {/* 헤더: D-Day & 북마크 */}
       <div className={styles.headerRow}>
         <span
-          className={`${styles.ddayBadge} ${isUrgent ? styles.ddayRed : ""}`}
+          className={`${styles.ddayBadge} ${isUrgent ? styles.ddayRed : ""} ${
+            earlyClosed ? styles.ddayWide : ""
+          }`}
         >
-          {!end ? "-" : closed ? "마감" : dday === null ? "-" : `D-${dday}`}
+          {badgeText}
         </span>
         <button
           className={styles.bookmarkBtn}

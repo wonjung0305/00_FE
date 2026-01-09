@@ -5,6 +5,8 @@ import styles from "@/styles/Mypage.module.css";
 import ProfileCard from "@/components/ProfileCard";
 import MyPetitionTable from "@/components/MyPetitionTable";
 
+import Footer from "@/components/Footer";
+
 import { getMyScraps, deleteScraps, type ScrapItem } from "@/lib/scrapApi";
 import { useAuthStore } from "@/store/authStore";
 
@@ -171,57 +173,60 @@ const MyPage: NextPage = () => {
   };
 
   return (
-    <main className={styles.page}>
-      <div className={styles.container}>
-        <section className={styles.profileSection}>
-          <ProfileCard />
-        </section>
+    <>
+      <main className={styles.page}>
+        <div className={styles.container}>
+          <section className={styles.profileSection}>
+            <ProfileCard />
+          </section>
 
-        <section className={styles.actionsSection}>
-          <div className={styles.actionsRow}>
-            <button
-              type="button"
-              className={styles.actionBtn}
-              onClick={selectAllOnPage}
-              disabled={
-                currentPageIds.length === 0 || isAllSelectedOnPage || deleting
-              }
-            >
-              전체 선택
-            </button>
+          <section className={styles.actionsSection}>
+            <div className={styles.actionsRow}>
+              <button
+                type="button"
+                className={styles.actionBtn}
+                onClick={selectAllOnPage}
+                disabled={
+                  currentPageIds.length === 0 || isAllSelectedOnPage || deleting
+                }
+              >
+                전체 선택
+              </button>
 
-            <button
-              type="button"
-              className={styles.actionBtn}
-              onClick={unselectAllOnPage}
-              disabled={currentPageIds.length === 0 || deleting}
-            >
-              선택 해제
-            </button>
+              <button
+                type="button"
+                className={styles.actionBtn}
+                onClick={unselectAllOnPage}
+                disabled={currentPageIds.length === 0 || deleting}
+              >
+                선택 해제
+              </button>
 
-            <button
-              type="button"
-              className={styles.actionBtn}
-              onClick={deleteSelected}
-              disabled={selectedIds.length === 0 || deleting}
-            >
-              선택 삭제
-            </button>
-          </div>
-        </section>
+              <button
+                type="button"
+                className={styles.actionBtn}
+                onClick={deleteSelected}
+                disabled={selectedIds.length === 0 || deleting}
+              >
+                선택 삭제
+              </button>
+            </div>
+          </section>
 
-        <section className={styles.tableSection}>
-          <MyPetitionTable
-            rows={currentPageRows}
-            selectedIds={selectedIds}
-            onToggleRow={toggleRow}
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-          />
-        </section>
-      </div>
-    </main>
+          <section className={styles.tableSection}>
+            <MyPetitionTable
+              rows={currentPageRows}
+              selectedIds={selectedIds}
+              onToggleRow={toggleRow}
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
+          </section>
+        </div>
+      </main>
+      <Footer />
+    </>
   );
 };
 

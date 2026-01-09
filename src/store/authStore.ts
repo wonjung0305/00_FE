@@ -58,8 +58,16 @@ export const useAuthStore = create<AuthState>()(
           user: null,
           loading: false,
         });
+        try {
+          Object.keys(localStorage).forEach((k) => {
+            if (k.startsWith("mora:likes:my:")) {
+              localStorage.removeItem(k);
+            }
+          });
+        } catch {}
         localStorage.removeItem("auth-storage");
       },
+      
 
       // OAuth / SSO 등 URL에 token 붙어오는 경우 처리
       // 토큰 파싱만 (redirect는 하지 않음)

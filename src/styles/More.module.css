@@ -1,0 +1,23 @@
+.page {
+  min-height: 100vh; 
+  
+  background: linear-gradient(180deg, #f5f5f5, #d4c8ff 99.99%);
+  background-attachment: fixed; 
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.imageSection {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+
+  padding-top: clamp(40px, 6vh, 80px);
+
+  background: transparent;
+}
+
+.image {
+  width: min(1440px, 100%);
+  height: auto;
+}

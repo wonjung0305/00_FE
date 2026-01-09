@@ -53,7 +53,7 @@
   justify-content: center;
 
   /* 크기 고정*/
-  width: 64px;          
+  width: 48px;          
   height: 24px;         
   padding: 0;
   box-sizing: border-box;
@@ -79,6 +79,13 @@
 .ddayGray {
   border: 1.5px solid #767676;
   color: #767676;
+}
+
+/* 조기마감 */
+.ddayWide {
+  width: auto;        /* 고정폭 해제 */
+  padding: 0 10px;    /* 조기마감 여백 */
+  min-width: 64px;    /* 최소는 기존 유지 */
 }
 
 /* --- 북마크 --- */

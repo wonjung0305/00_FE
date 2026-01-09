@@ -53,3 +53,12 @@ export function isClosedByEndDate(end: Date) {
   const t = todayStart();
   return t.getTime() >= end.getTime();
 }
+
+// 조기 마감인지 판단
+// status는 끝났는데 날짜 규칙상 아직 마감일이 안 지났으면 조기마감
+export function isEarlyClosed(status?: number, voteStartDateIso?: string) {
+  if (status !== 1) return false;
+  const end = endDateByRule(voteStartDateIso);
+  if (!end) return false;
+  return !isClosedByEndDate(end);
+}

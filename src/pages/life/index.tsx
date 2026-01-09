@@ -5,6 +5,7 @@ import { useRouter } from "next/router";
 import styles from "@/styles/Congress.module.css";
 import { useLoginToast } from "@/hooks/useLoginToast";
 import LoginToast from "@/components/LoginToast";
+import Footer from "@/components/Footer";
 
 import ListCard, { CongressCardItem } from "@/components/ListCard";
 
@@ -18,18 +19,6 @@ import type { PetitionResponse } from "@/lib/api/mainCard";
 function parseDate(dateStr: string) {
   const normalized = dateStr.trim().replace(/\./g, "-");
   return new Date(normalized + "T00:00:00");
-}
-
-// 진행 중인가 (endDate가 오늘 이후면 진행중 (true로))
-function isOngoing(endDate: string) {
-  const end = parseDate(endDate);
-  if (isNaN(end.getTime())) return false;
-
-  const today = new Date();
-  end.setHours(0, 0, 0, 0);
-  today.setHours(0, 0, 0, 0);
-
-  return end.getTime() >= today.getTime(); // 오늘 포함이면 진행중
 }
 
 // 한 페이지에 보이는 카드 수
@@ -111,6 +100,7 @@ export default function LifePage() {
       allows: p.allows ?? 0,
       startDate: (p.voteStartDate ?? "").split("T")[0].replace(/-/g, "."),
       endDate: (p.voteEndDate ?? "").split("T")[0].replace(/-/g, "."),
+      status: p.status,
     };
   };
 
@@ -119,7 +109,7 @@ export default function LifePage() {
     setLoading(true);
     try {
       const how = sortOption === "인기순" ? 0 : 1;
-      const statusForServer = activeStatus === "ongoing" ? 0 : 2;
+      const statusForServer = activeStatus === "ongoing" ? 0 : 1;
 
       const data = await getLifePetitions({
         how,
@@ -292,6 +282,8 @@ export default function LifePage() {
           onPageChange={setCurrentPage}
         />
       </main>
+
+      <Footer />
     </>
   );
 }

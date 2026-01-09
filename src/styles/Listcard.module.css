@@ -2,21 +2,21 @@
 .cardWrapper {
   width: 282px;
   height: 336px;
-  
+
   /* 비대칭 둥근 모서리 반영 */
   border-radius: 16px 16px 32px 32px;
   background-color: #fff;
   border: 1px solid #bfbfbf;
   box-sizing: border-box;
-  
+
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  justify-content: flex-start; 
-  
+  justify-content: flex-start;
+
   padding: 24px 0 8px 0;
   margin: 0;
-  
+
   position: relative;
 }
 
@@ -35,24 +35,18 @@
 }
 
 .ddayBadge {
-
-  /* 크기 고정으로*/
-  width: 64px;       
-  height: 24px;         
-  padding: 0; 
-
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  
-  width: 48px;
+
+  width: auto;
+  min-width: 48px;
   height: 24px;
-  padding: 8px 12px;
   box-sizing: border-box;
-  
+
   border-radius: 100px;
   background-color: #fff;
-  
+
   border: 1.5px solid #767676;
 
   color: #767676;
@@ -61,6 +55,12 @@
   line-height: 1;
 
   white-space: nowrap;
+}
+
+/* 조기마감인 경우 */
+.ddayWide {
+  min-width: 64px;
+  padding: 0 8px; /* 여백 살짝 증가 */
 }
 
 /* D-7*/
@@ -74,9 +74,9 @@
   height: 24px;
 
   background: transparent;
-  
+
   border: none;
-  
+
   padding: 0;
 
   display: flex;
@@ -95,11 +95,10 @@
 
   display: flex;
   flex-direction: column;
-  
+
   gap: 12px;
 
   flex: 1;
-
 }
 
 .date {
@@ -118,14 +117,14 @@
 
   line-height: 1.4;
   letter-spacing: -0.02em;
-  
+
   /* 3줄 말줄임 */
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
-  
+
   min-height: 84px;
 }
 
@@ -133,7 +132,7 @@
 .categoryWrapper {
   margin-top: auto;
   margin-bottom: 24px;
-  
+
   padding: 0 18px;
   box-sizing: border-box;
   width: 100%;
@@ -148,15 +147,15 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  
+
   padding: 6px 10px;
   border-radius: 4px;
-  
+
   font-size: 14px;
   font-weight: 500;
   white-space: nowrap;
-  
-  margin-top: 0; 
+
+  margin-top: 0;
   margin-bottom: 0;
 }
 
@@ -166,20 +165,20 @@
   height: 48px;
 
   flex-shrink: 0;
-  
+
   border-radius: 100px;
-  background-color: #eaedff; 
+  background-color: #eaedff;
   border: 1px solid #e5e5e5;
   box-sizing: border-box;
-  
+
   display: flex;
   align-items: center;
   justify-content: space-between;
-  
+
   margin: auto 8px 0 8px;
   padding: 0 16px;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.03);
-  
+
   text-decoration: none;
 }
 
@@ -188,18 +187,19 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  
+
   font-size: 16px;
   font-weight: 500;
-  color: #6a3df6; 
+  color: #6a3df6;
 }
 
 .bottomBar:hover {
-  border-color: #5F37DD;
+  border-color: #5f37dd;
 }
 
 /* 동의자 수, 화살표 아이콘*/
-.checkIcon, .arrowIcon {
+.checkIcon,
+.arrowIcon {
   width: 24px;
   height: 24px;
 
@@ -207,5 +207,3 @@
   align-items: center;
   flex-shrink: 0;
 }
-
-

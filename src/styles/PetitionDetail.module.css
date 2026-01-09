@@ -1,19 +1,32 @@
-.page {
+/* ===============================
+   페이지 기본 설정
+   =============================== */
+   .page {
     min-height: 100vh;
-    background: #fff;
+    background: #fff; /* 기본 화면은 흰색 */
     position: relative;
   }
   
+  /* ===============================
+     공통 컨테이너
+     =============================== */
   .container {
     max-width: 1200px;
     margin: 0 auto;
   }
   
+  /* ===============================
+     fallback(에러/로딩 등) 영역
+     =============================== */
   .fallbackWrap {
     padding: 60px 20px;
     background: #f5f6f8;
   }
   
+  /* ===============================
+     상단 회색 배경 레이어
+     (Hero 뒤에 깔리는 회색 배경)
+     =============================== */
   .bgLayer {
     position: absolute;
     top: 64px;
@@ -24,12 +37,18 @@
     z-index: 0;
   }
   
+  /* ===============================
+     전체 콘텐츠 래퍼
+     =============================== */
   .contentWrap {
     position: relative;
     z-index: 1;
     padding: 60px 20px 160px;
   }
   
+  /* ===============================
+     메인 레이아웃 그리드
+     =============================== */
   .grid {
     margin-top: 24px;
     display: grid;
@@ -38,22 +57,34 @@
     align-items: start;
   }
   
+  /* ===============================
+     왼쪽 컬럼
+     =============================== */
   .leftCol {
     display: flex;
     flex-direction: column;
-    gap: -10px;
+    gap: -10px; /* ⚠️ 음수 gap (레이아웃 이슈 가능) */
   }
   
+  /* ===============================
+     오른쪽 컬럼 (미니 카드 영역)
+     =============================== */
   .rightCol {
     position: sticky;
     top: 120px;
     align-self: start;
   }
   
+  /* ===============================
+     임시 여백/테스트용
+     =============================== */
   .spacer {
     height: 900px;
   }
   
+  /* ===============================
+     하단 회색 배경 영역
+     =============================== */
   .lowerBg {
     width: 100%;
     background: #f5f6f8;
@@ -62,74 +93,68 @@
     border-top: 1px solid #e5e7eb;
   }
   
+  /* ===============================
+     좋아요 영역
+     =============================== */
   .likeArea {
     display: flex;
     justify-content: center;
     padding-top: 0;
   }
   
+  /* ===============================
+     댓글 영역
+     =============================== */
   .commentsArea {
     margin-top: 28px;
   }
   
-
+  /* ===============================
+     DetailMiniCard sticky 설정
+     =============================== */
   .miniSticky {
     position: sticky;
     top: 120px;
   }
   
+  /* ===============================
+     댓글 페이지네이션 하단 여백
+     =============================== */
   .commentsPagerSpace {
     height: 140px;
   }
-
-  /* DetailMiniCard sticky 위치 */
-.miniSticky {
-  position: sticky;
-  top: 120px;
-}
-
-/* 회색 풀폭 섹션 */
-.graySection {
-  position: relative;
-  background: transparent;
-  padding: 0 0 80px;
-}
-
-/* 배경만 100vw로 깔기 (좌/우 끝까지 회색) */
-.graySection::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100vw;
-  height: 100%;
-  background: #f5f6f8;
-  z-index: 0;
-}
-
-/* 페이지 전체 배경을 회색으로 */
-.page {
-  background: #f5f6f8;
-}
-
-/* SummaryNotice 위 영역만 흰색으로 덮기 */
-.whiteSection {
-  background: #fff;
-  padding-bottom: 24px; /* 흰 영역 마감 여백(취향) */
-}
-
-/* sticky 방해 요소 방지 */
-.rightCol,
-.miniSticky {
-  overflow: visible;
-}
-
-/* miniSticky가 원래 있으면 top만 확인 */
-.miniSticky {
-  position: sticky;
-  top: 24px;
-}
-
-
-
+  
+  /* ===============================
+     회색 배경 섹션
+     (기본은 흰색, 이 구간만 회색 처리)
+     =============================== */
+  .graySection {
+    position: relative;
+    padding: 100px 0 88px;
+    background: transparent;
+  }
+  
+  /* ===============================
+     회색 배경을 화면 전체 폭으로 확장
+     =============================== */
+  .graySection::before {
+    
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100vw;
+    height: 100%;
+    background: #f5f6f8;
+    z-index: 0;
+  }
+  
+  /* ===============================
+     graySection 내부 콘텐츠는 위로
+     =============================== */
+  .graySection > * {
+    position: relative;
+    z-index: 1;
+  }
+  
