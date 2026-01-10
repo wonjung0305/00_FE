@@ -21,25 +21,25 @@ type BannerViewItem = {
 const WEEKLY_BANNERS: BannerViewItem[] = [
   {
     id: "2026w02-1",
-    imgSrc: "/banners/banner_01.svg",
+    imgSrc: "/banner_01.svg",
     alt: "주간 TOP 1",
     link: "/petition/3",
   },
   {
     id: "2026w02-2",
-    imgSrc: "/banners/banner_02.svg",
+    imgSrc: "/banner_02.svg",
     alt: "주간 TOP 2",
     link: "/petition/4",
   },
   {
     id: "2026w02-3",
-    imgSrc: "/banners/banner_03.svg",
+    imgSrc: "/banner_03.svg",
     alt: "주간 TOP 3",
     link: "/petition/5",
   },
   {
     id: "2026w02-4",
-    imgSrc: "/banners/banner_04.svg",
+    imgSrc: "/banner_04.svg",
     alt: "주간 TOP 4",
     link: "/petition/6",
   },
