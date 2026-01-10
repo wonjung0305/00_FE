@@ -191,7 +191,7 @@ export default function CongressPage() {
       const statusForServer = activeStatus === "ongoing" ? 0 : 1;
 
       const categoryForServer =
-        selectedCategories.length === 0 ? undefined : selectedCategories[0];
+        selectedCategories.length === 0 ? undefined : selectedCategories;
 
       const keyword = searchKeyword.trim();
 

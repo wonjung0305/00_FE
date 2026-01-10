@@ -17,11 +17,28 @@ export const getCongressPetitions = async (
   params: Omit<PetitionQuery, "type">
 ) => {
   try {
-    console.log("[getCongressPetitions received params]", params);
+    // category만 따로 빼서 repeat param으로 만들기
+    const { category, ...rest } = params;
 
-    const response = await axios.get<any>("/petition/cardNews", {
-      params: { ...params, type: 1 }, // type = 1, 국회 안건
+    const sp = new URLSearchParams();
+
+    // 나머지 파라미터들 추가 (빈 값/undefined 제거)
+    Object.entries({ ...rest, type: 1 }).forEach(([k, v]) => {
+      if (v === undefined || v === null || v === "") return;
+      sp.append(k, String(v));
     });
+
+    // category는 여러 개면 category=... 를 여러 번 append
+    if (Array.isArray(category)) {
+      category.forEach((c) => {
+        if (c) sp.append("category", c);
+      });
+    } else if (typeof category === "string" && category !== "") {
+      sp.append("category", category);
+    }
+
+    // 최종 요청: ?category=A&category=B 형태 
+    const response = await axios.get<any>(`/petition/cardNews?${sp.toString()}`);
 
     const data = response.data;
 
